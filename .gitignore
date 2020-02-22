@@ -3,3 +3,6 @@
 *.tlog
 x64
 *.rn2~
+/video_code_encode/x64/Debug/*.log
+/video_code_encode/x64/Debug/*.txt
+pngs
