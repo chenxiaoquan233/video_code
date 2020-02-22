@@ -59,6 +59,6 @@ int Encoder::png_to_mp4(char* video_path, int fps, int fpp, int sizeX, int sizeY
 				video << image;
 		}
 	}
-	puts("´¦ÀíÍê±Ï\n");
+	puts("Processed\n");
 	return 0;
 }
