@@ -1,6 +1,6 @@
 #include "./../include/Encoder.h"
 
-Encoder::Encoder(const char* _png_path):png_path(_png_path)
+Encoder::Encoder(const char* _png_path):png_path(_png_path),BLOCK_LENGTH(BLOCK_SIZE*10),IMG_X(720),IMG_Y(1280),MAX_BIN_PER_IMAGE((IMG_X * IMG_Y)/100 - ANCHOR_AREA)
 {
 	
 }
@@ -39,62 +39,62 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 
 int Encoder::text_to_bin(char* _input_file_name)
 {
+	printf("%d\n", MAX_BIN_PER_IMAGE);
 	bin_text = new bool[MAX_BIN_PER_IMAGE];
 	char* text_tmp = new char[MAX_BIN_PER_IMAGE / 8];
 	int res = fread(text_tmp, 1, MAX_BIN_PER_IMAGE/8, input_file);
 	for (int i = 0; i < res; ++i)
-		for (int j = 0; j < 8; ++j)
-			bin_text[i * 8 + j] = text_tmp[i] & (1 << j);
+		for (int j = 0; j < 7; ++j)
+			bin_text[i * 7 + j] = text_tmp[i] & (1 << j);
 	return res;
 }
 
 void Encoder::bin_to_png(bool* str, int size)
 {
-	Mat image(720, 1280, CV_8UC1);
+	Mat image(IMG_X, IMG_Y, CV_8UC1);
 	//定位点一
-	rectangle(image, Point(0, 0), Point(160, 160), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(20, 20), Point(140, 140), Scalar(0), FILLED, LINE_8);
-	rectangle(image, Point(40, 40), Point(120, 120), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(60, 60), Point(100, 100), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(0, 0), Point(200, 200), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(20, 20), Point(180, 180), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(40, 40), Point(160, 160), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(60, 60), Point(140, 140), Scalar(0), FILLED, LINE_8);
 	//定位点二
-	rectangle(image, Point(0, 560), Point(160, 720), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(20, 580), Point(140, 700), Scalar(0), FILLED, LINE_8);
-	rectangle(image, Point(40, 600), Point(120, 680), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(60, 620), Point(100, 660), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(0, 520), Point(200, 720), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(20, 540), Point(180, 700), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(40, 560), Point(160, 680), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(60, 580), Point(140, 660), Scalar(0), FILLED, LINE_8);
 	//定位点三
-	rectangle(image, Point(1120, 0), Point(1280, 160), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(1140, 20), Point(1260, 140), Scalar(0), FILLED, LINE_8);
-	rectangle(image, Point(1160, 40), Point(1240, 120), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(1180, 60), Point(1220, 100), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(1080, 0), Point(1280, 200), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(1100, 20), Point(1260, 180), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(1120, 40), Point(1240, 160), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(1140, 60), Point(1220, 140), Scalar(0), FILLED, LINE_8);
 	int count = 0;//统计已填充数目
-	for (int p = 0; p < 4; p++)
+	for (int p = 0; p < 200/BLOCK_LENGTH; p++)
 	{
-		for (int q = 0; q < 24; q++)
+		for (int q = 0; q < 880/BLOCK_LENGTH; q++)
 		{
-			rectangle(image, Point(160 + 40 * q, 0 + 40 * p), Point(200 + 40 * q, 40 + 40 * p), Scalar(255 * (str[count++]?1:0)), FILLED, LINE_8);//黑0白1
+			rectangle(image, Point(200 + BLOCK_LENGTH * q, 0 + BLOCK_LENGTH * p), Point(200 + BLOCK_LENGTH * (q+1), 0 + BLOCK_LENGTH * (p+1)), Scalar(255 * (str[count++]?1:0)), FILLED, LINE_8);//黑0白1
 			if (count >= size)
 			{
 				//str[count] = 0;			//溢出部分用0填充
 			}
-			char _name[20];
 		}
 	}
-	for (int p = 0; p < 10; p++)
+	for (int p = 0; p < 320/BLOCK_LENGTH; p++)
 	{
-		for (int q = 0; q < 32; q++)
+		for (int q = 0; q < 1280/BLOCK_LENGTH; q++)
 		{
-			rectangle(image, Point(0 + 40 * q, 160 + 40 * p), Point(40 + 40 * q, 200 + 40 * p), Scalar(255 * (double)str[count++]), FILLED, LINE_8);
+			rectangle(image, Point(0 + BLOCK_LENGTH * q, 200 + BLOCK_LENGTH * p), Point(0 + BLOCK_LENGTH * (q+1), 200 + BLOCK_LENGTH * (p+1)), Scalar(255 * (double)str[count++]), FILLED, LINE_8);
 			if (count >= size)
 			{
 				//str[count] = 0;
 			}
 		}
 	}
-	for (int p = 0; p < 4; p++)
+	for (int p = 0; p < 200/BLOCK_LENGTH; p++)
 	{
-		for (int q = 0; q < 28; q++)
+		for (int q = 0; q < 1080/BLOCK_LENGTH; q++)
 		{
-			rectangle(image, Point(160 + 40 * q, 560 + 40 * p), Point(200 + 40 * q, 600 + 40 * p), Scalar(255 * (double)str[count++]), FILLED, LINE_8);
+			rectangle(image, Point(200 + BLOCK_LENGTH * q, 520 + BLOCK_LENGTH * p), Point(200 + BLOCK_LENGTH * (q+1), 520 + BLOCK_LENGTH * (p+1)), Scalar(255 * (double)str[count++]), FILLED, LINE_8);
 			if (count >= size)
 			{
 				//str[count] = 0;

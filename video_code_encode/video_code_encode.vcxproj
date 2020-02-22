@@ -27,6 +27,7 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="example\1.txt" />
+    <Text Include="example\2.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

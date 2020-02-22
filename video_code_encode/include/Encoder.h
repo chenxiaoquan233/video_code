@@ -14,8 +14,13 @@ private:
 	int png_sum = 0;
 	int video_length = 0;
 	int fps = 60;
+	const int BLOCK_SIZE = 2;//side block number of every single block
+	const int BLOCK_LENGTH;
+	const int IMG_X;
+	const int IMG_Y;
+	const int ANCHOR_AREA = 768; //blocks coverd by anchor
 	bool* bin_text = nullptr;
-	const int MAX_BIN_PER_IMAGE = 528;
+	const int MAX_BIN_PER_IMAGE;
 public:
 	Encoder(const char* _png_path);
 	~Encoder();
