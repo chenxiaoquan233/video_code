@@ -10,14 +10,14 @@ class Encoder
 private:
 	FILE* input_file = nullptr;
 	char* output_file = nullptr;
-	char* png_path = nullptr;
+	const char* png_path = nullptr;
 	int png_sum = 0;
 	int video_length = 0;
 	int fps = 60;
 	bool* bin_text = nullptr;
 	const int MAX_BIN_PER_IMAGE = 528;
 public:
-	Encoder();
+	Encoder(const char* _png_path);
 	~Encoder();
 	void set_output_file(char* _output_file);
 	void set_video_length(char* _video_length);

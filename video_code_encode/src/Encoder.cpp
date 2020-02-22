@@ -1,8 +1,8 @@
 #include "./../include/Encoder.h"
 
-Encoder::Encoder()
+Encoder::Encoder(const char* _png_path):png_path(_png_path)
 {
-
+	
 }
 
 Encoder::~Encoder()
@@ -70,7 +70,7 @@ void Encoder::bin_to_png(bool* str)
 			rectangle(image, Point(160 + 40 * q, 0 + 40 * p), Point(200 + 40 * q, 40 + 40 * p), Scalar(255 * (double)str[count++]), FILLED, LINE_8);//黑0白1
 			if (count >= size)
 			{
-				str[count] = 0;			//溢出部分用0填充
+				//str[count] = 0;			//溢出部分用0填充
 			}
 		}
 	}
@@ -81,7 +81,7 @@ void Encoder::bin_to_png(bool* str)
 			rectangle(image, Point(0 + 40 * q, 160 + 40 * p), Point(40 + 40 * q, 200 + 40 * p), Scalar(255 * (double)str[count++]), FILLED, LINE_8);
 			if (count >= size)
 			{
-				str[count] = 0;
+				//str[count] = 0;
 			}
 		}
 	}
@@ -92,11 +92,12 @@ void Encoder::bin_to_png(bool* str)
 			rectangle(image, Point(160 + 40 * q, 560 + 40 * p), Point(200 + 40 * q, 600 + 40 * p), Scalar(255 * (double)str[count++]), FILLED, LINE_8);
 			if (count >= size)
 			{
-				str[count] = 0;
+				//str[count] = 0;
 			}
 		}
 	}
-	std::string image_name = std::to_string(png_sum) + ".png";
+	char image_name[20];
+	sprintf(image_name, "%s%d.png", png_path, png_sum);
 	imwrite(image_name, image);
 	waitKey(0);
 }
@@ -106,10 +107,10 @@ int Encoder::png_to_mp4(char* video_path, int fps, int fpp, int sizeX, int sizeY
 	
 	VideoWriter video(video_path, VideoWriter::fourcc('M', 'P', '4', 'V'), fps, Size(sizeX, sizeY));
 
-	for (size_t i = 0; i < png_sum; i++)
+	for (int i = 0; i < png_sum; i++)
 	{
 		char png_pos[32];
-		sprintf(png_pos, "%s/%d.png", png_path, i);
+		sprintf(png_pos, "%s%d.png", png_path, i);
 		Mat image = imread(png_pos);
 		if (!image.empty())
 		{
