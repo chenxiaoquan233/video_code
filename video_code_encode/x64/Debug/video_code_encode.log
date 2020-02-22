@@ -1,7 +1,7 @@
 ﻿C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\MSBuild\Microsoft\VC\v160\Microsoft.CppBuild.targets(452,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (项目1.vcxproj).  This can lead to incorrect clean and rebuild behavior.
   Encoder.cpp
-C:\Users\77035\source\repos\项目1\video_code_encode\src\Encoder.cpp(21,37): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
-C:\Users\77035\source\repos\项目1\video_code_encode\src\Encoder.cpp(42,60): warning C4267: “return”: 从“size_t”转换到“int”，可能丢失数据
-C:\Users\77035\source\repos\项目1\video_code_encode\src\Encoder.cpp(53,20): warning C4477: “sprintf”: 格式字符串“%d”需要类型“int”的参数，但可变参数 2 拥有了类型“size_t”
-C:\Users\77035\source\repos\项目1\video_code_encode\src\Encoder.cpp(53,20): message : 请考虑在格式字符串中使用“%zd”
-  video_code_encode.vcxproj -> C:\Users\77035\source\repos\项目1\x64\Debug\video_code_encode.exe
+D:\桌面\计网项目1\video_code_encode\src\Encoder.cpp(21,37): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+D:\桌面\计网项目1\video_code_encode\src\Encoder.cpp(43,60): warning C4267: “return”: 从“size_t”转换到“int”，可能丢失数据
+D:\桌面\计网项目1\video_code_encode\src\Encoder.cpp(112,20): warning C4477: “sprintf”: 格式字符串“%d”需要类型“int”的参数，但可变参数 2 拥有了类型“size_t”
+D:\桌面\计网项目1\video_code_encode\src\Encoder.cpp(112,20): message : 请考虑在格式字符串中使用“%zd”
+  video_code_encode.vcxproj -> D:\桌面\计网项目1\x64\Debug\video_code_encode.exe
