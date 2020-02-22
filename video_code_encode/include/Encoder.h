@@ -23,6 +23,6 @@ public:
 	void set_video_length(char* _video_length);
 	int encode(char* _input_file, char* _output_file, char* _video_length);
 	int text_to_bin(char* _input_file_name);
-	void bin_to_png(bool* str);
+	void bin_to_png(bool* str, int size);
 	int png_to_mp4(char* video_path, int fps, int fpp, int sizeX, int sizeY);
 };

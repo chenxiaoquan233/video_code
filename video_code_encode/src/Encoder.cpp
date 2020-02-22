@@ -30,7 +30,7 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 	while (!feof(input_file))
 	{
 		int len = text_to_bin(_input_file_name);
-		bin_to_png(bin_text);		//图片生成
+		bin_to_png(bin_text, len);		//图片生成
 		png_sum++;
 	}
 	//png_to_mp4(_output_file_name, fps, _video_length * fps / png_sum, sizeX, sizeY) 参数未定
@@ -40,10 +40,15 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 int Encoder::text_to_bin(char* _input_file_name)
 {
 	bin_text = new bool[MAX_BIN_PER_IMAGE];
-	return fread(bin_text, 1, MAX_BIN_PER_IMAGE/8, input_file);
+	char* text_tmp = new char[MAX_BIN_PER_IMAGE / 8];
+	int res = fread(text_tmp, 1, MAX_BIN_PER_IMAGE/8, input_file);
+	for (int i = 0; i < res; ++i)
+		for (int j = 0; j < 8; ++j)
+			bin_text[i * 8 + j] = text_tmp[i] & (1 << j);
+	return res;
 }
 
-void Encoder::bin_to_png(bool* str)
+void Encoder::bin_to_png(bool* str, int size)
 {
 	Mat image(720, 1280, CV_8UC1);
 	//定位点一
@@ -61,17 +66,17 @@ void Encoder::bin_to_png(bool* str)
 	rectangle(image, Point(1140, 20), Point(1260, 140), Scalar(0), FILLED, LINE_8);
 	rectangle(image, Point(1160, 40), Point(1240, 120), Scalar(255), FILLED, LINE_8);
 	rectangle(image, Point(1180, 60), Point(1220, 100), Scalar(0), FILLED, LINE_8);
-	int size = sizeof(str);
 	int count = 0;//统计已填充数目
 	for (int p = 0; p < 4; p++)
 	{
 		for (int q = 0; q < 24; q++)
 		{
-			rectangle(image, Point(160 + 40 * q, 0 + 40 * p), Point(200 + 40 * q, 40 + 40 * p), Scalar(255 * (double)str[count++]), FILLED, LINE_8);//黑0白1
+			rectangle(image, Point(160 + 40 * q, 0 + 40 * p), Point(200 + 40 * q, 40 + 40 * p), Scalar(255 * (str[count++]?1:0)), FILLED, LINE_8);//黑0白1
 			if (count >= size)
 			{
 				//str[count] = 0;			//溢出部分用0填充
 			}
+			char _name[20];
 		}
 	}
 	for (int p = 0; p < 10; p++)
@@ -99,7 +104,6 @@ void Encoder::bin_to_png(bool* str)
 	char image_name[20];
 	sprintf(image_name, "%s%d.png", png_path, png_sum);
 	imwrite(image_name, image);
-	waitKey(0);
 }
 
 int Encoder::png_to_mp4(char* video_path, int fps, int fpp, int sizeX, int sizeY)
