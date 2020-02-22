@@ -30,6 +30,7 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 	while (!feof(input_file))
 	{
 		int len = text_to_bin(_input_file_name);
+		png_sum++;
 	}
 	//png_to_mp4(_output_file_name, fps, _video_length * fps / png_sum, sizeX, sizeY) ²ÎÊýÎ´¶¨
 	return 0;
