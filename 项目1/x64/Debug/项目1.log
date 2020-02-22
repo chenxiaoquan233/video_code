@@ -1,0 +1,4 @@
+﻿  Encoder.cpp
+C:\Users\77035\source\repos\项目1\项目1\Encoder.cpp(23,37): warning C4267: “初始化”: 从“size_t”转换到“int”，可能丢失数据
+C:\Users\77035\source\repos\项目1\项目1\Encoder.cpp(45,60): warning C4267: “return”: 从“size_t”转换到“int”，可能丢失数据
+  项目1.vcxproj -> C:\Users\77035\source\repos\项目1\x64\Debug\项目1.exe
