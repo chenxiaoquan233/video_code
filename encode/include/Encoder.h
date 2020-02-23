@@ -18,7 +18,7 @@ private:
 	const int BLOCK_LENGTH;
 	const int IMG_X;
 	const int IMG_Y;
-	const int ANCHOR_AREA = 768; //blocks coverd by anchor
+	const int ANCHOR_AREA = 972; //blocks coverd by anchor
 	bool* bin_text = nullptr;
 	const int MAX_BIN_PER_IMAGE;
 public:
