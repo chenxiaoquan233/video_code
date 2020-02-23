@@ -34,7 +34,7 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 		bin_to_png(bin_text, len);		//Í¼Æ¬Éú³É
 		png_sum++;
 	}
-	png_to_mp4(_output_file_name, fps, video_length * fps / png_sum, IMG_X, IMG_Y);
+	png_to_mp4(_output_file_name, fps, video_length / 1000 * fps / png_sum, IMG_Y, IMG_X);
 	return 0;
 }
 
@@ -106,11 +106,11 @@ void Encoder::bin_to_png(bool* str, int size)
 	imwrite(image_name, image);
 }
 
-int Encoder::png_to_mp4(char* video_path, int fps, int fpp, int sizeX, int sizeY)
+int Encoder::png_to_mp4(char* video_path, int fps, int fpp, int sizeY, int sizeX)
 {
 	
-	VideoWriter video(video_path, VideoWriter::fourcc('M', 'P', '4', 'V'), fps, Size(sizeX, sizeY));
-
+	VideoWriter video(video_path, VideoWriter::fourcc('M', 'P', '4', 'V'), fps, Size(sizeY, sizeX));
+	printf("%d,%d\n", fps, fpp);
 	for (int i = 0; i < png_sum; i++)
 	{
 		char png_pos[32];
@@ -118,7 +118,7 @@ int Encoder::png_to_mp4(char* video_path, int fps, int fpp, int sizeX, int sizeY
 		Mat image = imread(png_pos);
 		if (!image.empty())
 		{
-			resize(image, image, Size(sizeX, sizeY));
+			resize(image, image, Size(sizeY, sizeX));
 			for (int fpp_num = 0; fpp_num < fpp; fpp_num++)
 				video << image;
 		}

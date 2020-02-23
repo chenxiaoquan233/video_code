@@ -13,7 +13,7 @@ private:
 	const char* png_path = nullptr;
 	int png_sum = 0;
 	int video_length = 0;
-	int fps = 60;
+	int fps = 30;
 	const int BLOCK_SIZE = 2;//side block number of every single block
 	const int BLOCK_LENGTH;
 	const int IMG_X;
