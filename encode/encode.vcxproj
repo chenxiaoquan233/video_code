@@ -83,8 +83,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>C:\opencv\build\include\opencv2;C:\opencv\build\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opencv\build\x64\vc15\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>D:\opencv\build\include\opencv2;D:\opencv\build\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\opencv\build\x64\vc15\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -104,7 +104,8 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>D:\opencv\opencv\build\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
