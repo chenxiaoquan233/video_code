@@ -1,8 +1,10 @@
 #include "./../include/Encoder.h"
 
-Encoder::Encoder(const char* _png_path):png_path(_png_path),BLOCK_WIDTH(BLOCK_SIZE*10),IMG_X(720),IMG_Y(1280),MAX_BIN_PER_IMAGE((IMG_X * IMG_Y)/100 - ANCHOR_AREA)
+Encoder::Encoder(const char* _png_path):png_path(_png_path)
 {
-	
+	BLOCK_WIDTH = BLOCK_SIZE * BASE_BLOCK_WIDTH;
+	ANCHOR_AREA = 3 * (ANCHOR_BASE_BLOCKS / BLOCK_SIZE) * (ANCHOR_BASE_BLOCKS / BLOCK_SIZE);
+	MAX_BIN_PER_IMAGE = (IMG_X / BLOCK_WIDTH * IMG_Y / BLOCK_WIDTH - ANCHOR_AREA);
 }
 
 Encoder::~Encoder()
@@ -31,7 +33,8 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 	while (!feof(input_file))
 	{
 		int len = text_to_bin(_input_file_name);
-		bin_to_png(bin_text, len);		//图片生成
+		printf("%d\n", len * 7);
+		bin_to_png(bin_text, len * 8);		//图片生成
 		png_sum++;
 	}
 	png_to_mp4(_output_file_name, fps, video_length / 1000 * fps / png_sum, IMG_Y, IMG_X);
@@ -41,8 +44,8 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 int Encoder::text_to_bin(char* _input_file_name)
 {
 	bin_text = new bool[MAX_BIN_PER_IMAGE];
-	char* text_tmp = new char[MAX_BIN_PER_IMAGE / 8];
-	int res = fread(text_tmp, 1, MAX_BIN_PER_IMAGE/8, input_file);
+	char* text_tmp = new char[MAX_BIN_PER_IMAGE / 7];
+	int res = fread(text_tmp, 1, MAX_BIN_PER_IMAGE / 7, input_file);
 	for (int i = 0; i < res; ++i)
 		for (int j = 0; j < 7; ++j)
 			bin_text[i * 7 + j] = text_tmp[i] & (1 << j);
@@ -72,10 +75,10 @@ void Encoder::bin_to_png(bool* str, int size)
 	{
 		for (int q = 0; q < IMG_Y / BLOCK_WIDTH - 2 * ANCHOR_BASE_BLOCKS / BLOCK_SIZE; q++)
 		{
-			rectangle(image, Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q, 0 + BLOCK_WIDTH * p), Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (q+1), 0 + BLOCK_WIDTH * (p+1)), Scalar(255 * (str[count++]?1:0)), FILLED, LINE_8);//黑0白1
+			rectangle(image, Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q, 0 + BLOCK_WIDTH * p), Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (q+1), 0 + BLOCK_WIDTH * (p+1)), Scalar(255 * str[count++]), FILLED, LINE_8);//黑0白1
 			if (count >= size)
 			{
-				//str[count] = 0;			//溢出部分用0填充
+				str[count] = 0;			//溢出部分用0填充
 			}
 		}
 	}
@@ -83,10 +86,10 @@ void Encoder::bin_to_png(bool* str, int size)
 	{
 		for (int q = 0; q < IMG_Y / BLOCK_WIDTH; q++)
 		{
-			rectangle(image, Point(0 + BLOCK_WIDTH * q, BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p), Point(0 + BLOCK_WIDTH * (q+1), BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (p+1)), Scalar(255 * (double)str[count++]), FILLED, LINE_8);
+			rectangle(image, Point(0 + BLOCK_WIDTH * q, BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p), Point(0 + BLOCK_WIDTH * (q+1), BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (p+1)), Scalar(255 * str[count++]), FILLED, LINE_8);
 			if (count >= size)
 			{
-				//str[count] = 0;
+				str[count] = 0;
 			}
 		}
 	}
@@ -94,10 +97,10 @@ void Encoder::bin_to_png(bool* str, int size)
 	{
 		for (int q = 0; q < IMG_Y / BLOCK_WIDTH - ANCHOR_BASE_BLOCKS / BLOCK_SIZE; q++)
 		{
-			rectangle(image, Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p), Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (q+1), IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (p+1)), Scalar(255 * (double)str[count++]), FILLED, LINE_8);
+			rectangle(image, Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p), Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (q+1), IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (p+1)), Scalar(255 * str[count++]), FILLED, LINE_8);
 			if (count >= size)
 			{
-				//str[count] = 0;
+				str[count] = 0;
 			}
 		}
 	}
