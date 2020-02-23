@@ -53,20 +53,20 @@ void Encoder::bin_to_png(bool* str, int size)
 {
 	Mat image(IMG_X, IMG_Y, CV_8UC1);
 	//定位点一
-	rectangle(image, Point( 0,  0), Point(180, 180), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(20, 20), Point(160, 160), Scalar(0), FILLED, LINE_8);
-	rectangle(image, Point(40, 40), Point(140, 140), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(60, 60), Point(120, 120), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point( 0,  0), Point(160, 160), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point( 0,  0), Point(140, 140), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(20, 20), Point(120, 120), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(40, 40), Point(100, 100), Scalar(0), FILLED, LINE_8);
 	//定位点二
-	rectangle(image, Point( 0, 540), Point(180, 720), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(20, 560), Point(160, 700), Scalar(0), FILLED, LINE_8);
-	rectangle(image, Point(40, 580), Point(140, 680), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(60, 600), Point(120, 660), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point( 0, 560), Point(160, 720), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point( 0, 580), Point(140, 720), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(20, 600), Point(120, 700), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(40, 620), Point(100, 680), Scalar(0), FILLED, LINE_8);
 	//定位点三
-	rectangle(image, Point(1100,  0), Point(1280, 180), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(1120, 20), Point(1260, 160), Scalar(0), FILLED, LINE_8);
-	rectangle(image, Point(1140, 40), Point(1240, 140), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(1160, 60), Point(1220, 120), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(1120,  0), Point(1280, 160), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(1140,  0), Point(1280, 140), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(1160, 20), Point(1260, 120), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(1180, 40), Point(1240, 100), Scalar(0), FILLED, LINE_8);
 	int count = 0;//统计已填充数目
 	for (int p = 0; p < ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
 	{

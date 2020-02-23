@@ -22,7 +22,7 @@ private:
 	const int ANCHOR_AREA = 972; //blocks coverd by anchor
 	bool* bin_text = nullptr;
 	const int MAX_BIN_PER_IMAGE;
-	const int ANCHOR_BASE_BLOCKS = 18;
+	const int ANCHOR_BASE_BLOCKS = 16;
 public:
 	Encoder(const char* _png_path);
 	~Encoder();
