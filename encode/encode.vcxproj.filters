@@ -34,5 +34,8 @@
     <Text Include="example\2.txt">
       <Filter>资源文件</Filter>
     </Text>
+    <Text Include="example\3.txt">
+      <Filter>资源文件</Filter>
+    </Text>
   </ItemGroup>
 </Project>

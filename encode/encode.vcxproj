@@ -28,13 +28,14 @@
   <ItemGroup>
     <Text Include="example\1.txt" />
     <Text Include="example\2.txt" />
+    <Text Include="example\3.txt" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <ProjectGuid>{D5CFDD4D-E880-482E-A037-47DE18A3BAA4}</ProjectGuid>
     <RootNamespace>video_code_encode</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>video_code_encode</ProjectName>
+    <ProjectName>encode</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

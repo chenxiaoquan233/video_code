@@ -26,6 +26,7 @@ void Encoder::set_video_length(char* _video_length)
 
 int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _video_length)
 {
+	set_video_length(_video_length);
 	input_file = fopen(_input_file_name, "r");
 	while (!feof(input_file))
 	{
@@ -33,13 +34,12 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 		bin_to_png(bin_text, len);		//图片生成
 		png_sum++;
 	}
-	//png_to_mp4(_output_file_name, fps, _video_length * fps / png_sum, sizeX, sizeY) 参数未定
+	png_to_mp4(_output_file_name, fps, video_length * fps / png_sum, IMG_X, IMG_Y);
 	return 0;
 }
 
 int Encoder::text_to_bin(char* _input_file_name)
 {
-	printf("%d\n", MAX_BIN_PER_IMAGE);
 	bin_text = new bool[MAX_BIN_PER_IMAGE];
 	char* text_tmp = new char[MAX_BIN_PER_IMAGE / 8];
 	int res = fread(text_tmp, 1, MAX_BIN_PER_IMAGE/8, input_file);
