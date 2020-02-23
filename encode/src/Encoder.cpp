@@ -33,8 +33,7 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 	while (!feof(input_file))
 	{
 		int len = text_to_bin(_input_file_name);
-		printf("%d\n", len * 7);
-		bin_to_png(bin_text, len * 8);		//图片生成
+		bin_to_png(bin_text, len * 26);		//图片生成
 		png_sum++;
 	}
 	png_to_mp4(_output_file_name, fps, video_length / 1000 * fps / png_sum, IMG_Y, IMG_X);
@@ -43,13 +42,42 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 
 int Encoder::text_to_bin(char* _input_file_name)
 {
-	bin_text = new bool[MAX_BIN_PER_IMAGE];
-	char* text_tmp = new char[MAX_BIN_PER_IMAGE / 7];
-	int res = fread(text_tmp, 1, MAX_BIN_PER_IMAGE / 7, input_file);
+	int bit_message_len = MAX_BIN_PER_IMAGE / 26 * 16;
+	int hex_len = bit_message_len / 16;
+	int bin_text_len = MAX_BIN_PER_IMAGE / 26 * 26;
+
+	bin_text = new bool[bin_text_len];
+	char* text_tmp = new char[bit_message_len / 8];
+
+	int res = fread(text_tmp, 1, hex_len * 2, input_file);
+
+	hex = new unsigned int[res / 2];
 	for (int i = 0; i < res; ++i)
-		for (int j = 0; j < 7; ++j)
-			bin_text[i * 7 + j] = text_tmp[i] & (1 << j);
-	return res;
+	{
+		if (i % 2)
+		{
+			hex[i / 2] += text_tmp[i];
+			unsigned int FEC = getFEC(hex[i / 2]);
+			hex[i / 2] <<= 10;
+			hex[i / 2] += FEC;
+			for (int j = 0; j < 26; ++j)
+				bin_text[i/2 * 26 + j] = (hex[i / 2] & (1 << j)?1:0);
+		}
+		else
+		{
+			hex[i / 2] = text_tmp[i];
+			hex[i / 2] <<= 8;
+		}
+	}
+	return res/2;
+
+	/*bin_text = new bool[MAX_BIN_PER_IMAGE];
+	char* text_tmp = new char[MAX_BIN_PER_IMAGE / 8];
+	int res = fread(text_tmp, 1, MAX_BIN_PER_IMAGE / 8, input_file);
+	for (int i = 0; i < res; ++i)
+		for (int j = 0; j < 8; ++j)
+			bin_text[i * 8 + j] = text_tmp[i] & (1 << j);
+	return res;*/
 }
 
 void Encoder::bin_to_png(bool* str, int size)
@@ -128,4 +156,19 @@ int Encoder::png_to_mp4(char* video_path, int fps, int fpp, int sizeY, int sizeX
 	}
 	puts("Processed\n");
 	return 0;
+}
+
+unsigned int Encoder::getFEC(unsigned int CX)
+{
+	unsigned int RX;
+	CX = CX << 10;
+	unsigned int gx = 0x05B9 << (26 - 11);
+	for (int j = 0; j < 16; j++)
+	{
+		if ((CX & 0x2000000) != 0)
+			CX ^= gx;
+		CX = CX << 1;
+	}
+	RX = CX >> 16;
+	return RX;
 }
