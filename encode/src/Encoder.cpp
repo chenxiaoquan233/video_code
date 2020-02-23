@@ -1,6 +1,6 @@
 #include "./../include/Encoder.h"
 
-Encoder::Encoder(const char* _png_path):png_path(_png_path),BLOCK_LENGTH(BLOCK_SIZE*10),IMG_X(720),IMG_Y(1280),MAX_BIN_PER_IMAGE((IMG_X * IMG_Y)/100 - ANCHOR_AREA)
+Encoder::Encoder(const char* _png_path):png_path(_png_path),BLOCK_WIDTH(BLOCK_SIZE*10),IMG_X(720),IMG_Y(1280),MAX_BIN_PER_IMAGE((IMG_X * IMG_Y)/100 - ANCHOR_AREA)
 {
 	
 }
@@ -34,7 +34,7 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 		bin_to_png(bin_text, len);		//图片生成
 		png_sum++;
 	}
-	//png_to_mp4(_output_file_name, fps, video_length / 1000 * fps / png_sum, IMG_Y, IMG_X);
+	png_to_mp4(_output_file_name, fps, video_length / 1000 * fps / png_sum, IMG_Y, IMG_X);
 	return 0;
 }
 
@@ -68,33 +68,33 @@ void Encoder::bin_to_png(bool* str, int size)
 	rectangle(image, Point(1140, 40), Point(1240, 140), Scalar(255), FILLED, LINE_8);
 	rectangle(image, Point(1160, 60), Point(1220, 120), Scalar(0), FILLED, LINE_8);
 	int count = 0;//统计已填充数目
-	for (int p = 0; p < 180/BLOCK_LENGTH; p++)
+	for (int p = 0; p < ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
 	{
-		for (int q = 0; q < 920/BLOCK_LENGTH; q++)
+		for (int q = 0; q < IMG_Y / BLOCK_WIDTH - 2 * ANCHOR_BASE_BLOCKS / BLOCK_SIZE; q++)
 		{
-			rectangle(image, Point(180 + BLOCK_LENGTH * q, 0 + BLOCK_LENGTH * p), Point(180 + BLOCK_LENGTH * (q+1), 0 + BLOCK_LENGTH * (p+1)), Scalar(255 * (str[count++]?1:0)), FILLED, LINE_8);//黑0白1
+			rectangle(image, Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q, 0 + BLOCK_WIDTH * p), Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (q+1), 0 + BLOCK_WIDTH * (p+1)), Scalar(255 * (str[count++]?1:0)), FILLED, LINE_8);//黑0白1
 			if (count >= size)
 			{
 				//str[count] = 0;			//溢出部分用0填充
 			}
 		}
 	}
-	for (int p = 0; p < 360/BLOCK_LENGTH; p++)
+	for (int p = 0; p < IMG_X / BLOCK_WIDTH - 2 * ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
 	{
-		for (int q = 0; q < 1280/BLOCK_LENGTH; q++)
+		for (int q = 0; q < IMG_Y / BLOCK_WIDTH; q++)
 		{
-			rectangle(image, Point(0 + BLOCK_LENGTH * q, 180 + BLOCK_LENGTH * p), Point(0 + BLOCK_LENGTH * (q+1), 180 + BLOCK_LENGTH * (p+1)), Scalar(255 * (double)str[count++]), FILLED, LINE_8);
+			rectangle(image, Point(0 + BLOCK_WIDTH * q, BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p), Point(0 + BLOCK_WIDTH * (q+1), BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (p+1)), Scalar(255 * (double)str[count++]), FILLED, LINE_8);
 			if (count >= size)
 			{
 				//str[count] = 0;
 			}
 		}
 	}
-	for (int p = 0; p < 200/BLOCK_LENGTH; p++)
+	for (int p = 0; p < ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
 	{
-		for (int q = 0; q < 1100/BLOCK_LENGTH; q++)
+		for (int q = 0; q < IMG_Y / BLOCK_WIDTH - ANCHOR_BASE_BLOCKS / BLOCK_SIZE; q++)
 		{
-			rectangle(image, Point(180 + BLOCK_LENGTH * q, 500 + BLOCK_LENGTH * p), Point(180 + BLOCK_LENGTH * (q+1), 520 + BLOCK_LENGTH * (p+1)), Scalar(255 * (double)str[count++]), FILLED, LINE_8);
+			rectangle(image, Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p), Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (q+1), IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (p+1)), Scalar(255 * (double)str[count++]), FILLED, LINE_8);
 			if (count >= size)
 			{
 				//str[count] = 0;
