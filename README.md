@@ -21,9 +21,8 @@
   * [编码部分](#编码部分)
   * [解码部分](#解码部分)
 - [TODO](#TODO)
-- [Change log](#Change log)
+- [Change log](#Change&nbsp;log)
 - [交流反馈](#交流反馈)
-
 <!-- tocstop -->
 
 # 简介
