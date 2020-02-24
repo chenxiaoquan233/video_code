@@ -27,7 +27,7 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 		bin_to_png(bin_text, len * 26);		//图片生成
 		png_sum++;
 	}
-	png_to_mp4(_output_file_name, fps, video_length / 1000 * fps / png_sum, IMG_Y, IMG_X);
+	png_to_mp4(_output_file_name, fps, video_length / 1000 * fps / (png_sum-1), IMG_Y+20, IMG_X+20);
 	return 0;
 }
 
@@ -65,28 +65,29 @@ int Encoder::text_to_bin(char* _input_file_name)
 
 void Encoder::bin_to_png(bool* str, int size)
 {
-	Mat image(IMG_X, IMG_Y, CV_8UC1);
+	Mat image(IMG_X + 20, IMG_Y + 20, CV_8UC1);
+	rectangle(image, Point(0, 0), Point(IMG_Y + 20, IMG_X + 20), Scalar(255), FILLED, LINE_8);
 	//定位点一
-	rectangle(image, Point( 0,  0), Point(160, 160), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point( 0,  0), Point(140, 140), Scalar(0), FILLED, LINE_8);
-	rectangle(image, Point(20, 20), Point(120, 120), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(40, 40), Point(100, 100), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point( 0 + 10,  0 + 10), Point(160 + 10, 160 + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point( 0 + 10,  0 + 10), Point(140 + 10, 140 + 10), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(20 + 10, 20 + 10), Point(120 + 10, 120 + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(40 + 10, 40 + 10), Point(100 + 10, 100 + 10), Scalar(0), FILLED, LINE_8);
 	//定位点二
-	rectangle(image, Point( 0, 560), Point(160, 720), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point( 0, 580), Point(140, 720), Scalar(0), FILLED, LINE_8);
-	rectangle(image, Point(20, 600), Point(120, 700), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(40, 620), Point(100, 680), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point( 0 + 10, 560 + 10), Point(160 + 10, 720 + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point( 0 + 10, 580 + 10), Point(140 + 10, 720 + 10), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(20 + 10, 600 + 10), Point(120 + 10, 700 + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(40 + 10, 620 + 10), Point(100 + 10, 680 + 10), Scalar(0), FILLED, LINE_8);
 	//定位点三
-	rectangle(image, Point(1120,  0), Point(1280, 160), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(1140,  0), Point(1280, 140), Scalar(0), FILLED, LINE_8);
-	rectangle(image, Point(1160, 20), Point(1260, 120), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(1180, 40), Point(1240, 100), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(1120 + 10,  0 + 10), Point(1280 + 10, 160 + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(1140 + 10,  0 + 10), Point(1280 + 10, 140 + 10), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(1160 + 10, 20 + 10), Point(1260 + 10, 120 + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(1180 + 10, 40 + 10), Point(1240 + 10, 100 + 10), Scalar(0), FILLED, LINE_8);
 	int count = 0;//统计已填充数目
 	for (int p = 0; p < ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
 	{
 		for (int q = 0; q < IMG_Y / BLOCK_WIDTH - 2 * ANCHOR_BASE_BLOCKS / BLOCK_SIZE; q++)
 		{
-			rectangle(image, Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q, 0 + BLOCK_WIDTH * p), Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (q+1), 0 + BLOCK_WIDTH * (p+1)), Scalar(255 * str[count++]), FILLED, LINE_8);//黑0白1
+			rectangle(image, Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q + 10, 0 + BLOCK_WIDTH * p + 10), Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (q+1) + 10, 0 + BLOCK_WIDTH * (p+1) + 10), Scalar(255 * str[count++]), FILLED, LINE_8);//黑0白1
 			if (count >= size)
 			{
 				str[count] = 0;			//溢出部分用0填充
@@ -97,7 +98,7 @@ void Encoder::bin_to_png(bool* str, int size)
 	{
 		for (int q = 0; q < IMG_Y / BLOCK_WIDTH; q++)
 		{
-			rectangle(image, Point(0 + BLOCK_WIDTH * q, BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p), Point(0 + BLOCK_WIDTH * (q+1), BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (p+1)), Scalar(255 * str[count++]), FILLED, LINE_8);
+			rectangle(image, Point(0 + BLOCK_WIDTH * q + 10, BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p + 10), Point(0 + BLOCK_WIDTH * (q+1) + 10, BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (p+1) + 10), Scalar(255 * str[count++]), FILLED, LINE_8);
 			if (count >= size)
 			{
 				str[count] = 0;
@@ -108,7 +109,7 @@ void Encoder::bin_to_png(bool* str, int size)
 	{
 		for (int q = 0; q < IMG_Y / BLOCK_WIDTH - ANCHOR_BASE_BLOCKS / BLOCK_SIZE; q++)
 		{
-			rectangle(image, Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p), Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (q+1), IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (p+1)), Scalar(255 * str[count++]), FILLED, LINE_8);
+			rectangle(image, Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q + 10, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p + 10), Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (q+1) + 10, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (p+1) + 10), Scalar(255 * str[count++]), FILLED, LINE_8);
 			if (count >= size)
 			{
 				str[count] = 0;
@@ -122,7 +123,6 @@ void Encoder::bin_to_png(bool* str, int size)
 
 int Encoder::png_to_mp4(char* video_path, int fps, int fpp, int sizeY, int sizeX)
 {
-	
 	VideoWriter video(video_path, VideoWriter::fourcc('M', 'P', '4', 'V'), fps, Size(sizeY, sizeX));
 	printf("%d,%d\n", fps, fpp);
 	for (int i = 0; i < png_sum; i++)

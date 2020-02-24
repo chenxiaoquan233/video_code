@@ -24,15 +24,15 @@ int Decoder::recog_Qr(Mat& image1)
 	int count = 0;
 	Mat image = Mat::zeros(720, 1280, CV_8UC3);
 	resize(image1, image, image.size());
-	Scalar color1 = image.at<uchar>(10, 10);//黑0
-	Scalar color2 = image.at<uchar>(150, 150);//白1
+	//Scalar color1 = image.at<uchar>(10, 10);//黑0
+	//Scalar color2 = image.at<uchar>(150, 150);//白1
 
 	for (int p = 0; p < ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
 	{
 		for (int q = 0; q < IMG_Y / BLOCK_WIDTH - 2 * ANCHOR_BASE_BLOCKS / BLOCK_SIZE; q++)
 		{
-			Scalar color = image.at<uchar>(Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q + BLOCK_WIDTH / 2, 0 + BLOCK_WIDTH * p + BLOCK_WIDTH / 2));
-			if (color == color1) bin_text[count++] = false;
+			uchar color = image.at<uchar>(Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q + BLOCK_WIDTH / 2, 0 + BLOCK_WIDTH * p + BLOCK_WIDTH / 2));
+			if (color < 128) bin_text[count++] = false;
 			else bin_text[count++] = true;
 		}
 	}
@@ -40,8 +40,8 @@ int Decoder::recog_Qr(Mat& image1)
 	{
 		for (int q = 0; q < IMG_Y / BLOCK_WIDTH; q++)
 		{
-			Scalar color = image.at<uchar>(Point(0 + BLOCK_WIDTH * q + BLOCK_WIDTH / 2, BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p + BLOCK_WIDTH / 2));
-			if (color == color1) bin_text[count++] = false;
+			uchar color = image.at<uchar>(Point(0 + BLOCK_WIDTH * q + BLOCK_WIDTH / 2, BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p + BLOCK_WIDTH / 2));
+			if (color < 128) bin_text[count++] = false;
 			else bin_text[count++] = true;;
 		}
 	}
@@ -49,9 +49,20 @@ int Decoder::recog_Qr(Mat& image1)
 	{
 		for (int q = 0; q < IMG_Y / BLOCK_WIDTH - ANCHOR_BASE_BLOCKS / BLOCK_SIZE; q++)
 		{
-			Scalar color = image.at<uchar>(Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q + BLOCK_WIDTH / 2, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p + BLOCK_WIDTH / 2));
-			if (color == color1) bin_text[count++] = false;
+			uchar color = image.at<uchar>(Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q + BLOCK_WIDTH / 2, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p + BLOCK_WIDTH / 2));
+			if (color < 128) bin_text[count++] = false;
 			else bin_text[count++] = true;
+		}
+	}
+	char a = 0;
+	for (int i = 1; i <= 2112; ++i)
+	{
+		a <<= 1;
+		a += (bin_text[i-1] ? 1 : 0);
+		if (!(i % 7))
+		{
+			putchar(a);
+			a = 0;
 		}
 	}
 	return count;
@@ -233,7 +244,7 @@ bool Decoder::IsQrColorRate(cv::Mat& image, int flag)
 	return Qr_color_rate_Y(image, flag);;
 }
 //二维码定位角区域切割
-Mat& Decoder::crop_image(Mat& img, RotatedRect& rotatedRect) {
+Mat Decoder::crop_image(Mat& img, RotatedRect& rotatedRect) {
 	Point2f points[4];
 	rotatedRect.points(points);
 	int topLeftIndex = 0;
@@ -285,7 +296,7 @@ bool Decoder::Qr_point(vector<Point>& contour, Mat& img, int i)
 {
 	//最小大小限定
 	RotatedRect rotated_rect = minAreaRect(contour);
-	if (rotated_rect.size.height < 40 || rotated_rect.size.width < 40)
+	if (rotated_rect.size.height < 40  || rotated_rect.size.width < 40)
 		return false;
 	//将二维码从整个图上抠出来
 	cv::Mat cropImg = crop_image(img, rotated_rect);
@@ -305,7 +316,6 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 	Mat threshold_output;
 	threshold(src_gray, threshold_output, 0, 255, THRESH_BINARY | THRESH_OTSU);
 	Mat threshold_output_copy = threshold_output.clone();
-
 	//调用查找轮廓函数
 	findContours(threshold_output, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE, Point(0, 0));
 	Mat srcImg_copy = srcImg.clone();
@@ -315,7 +325,6 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 		float c = (float)rect.width / rect.height;
 		rectangle(srcImg_copy, rect, Scalar(255), 2);
 	}
-
 	//通过黑色定位角作为父轮廓，有两个子轮廓的特点，筛选出三个定位角
 	int parentIdx = -1;
 
@@ -330,7 +339,6 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 			k = hierarchy[k][2];
 			ic++;
 		}
-
 		//有两个子轮廓才是二维码的顶点
 		if (ic >= 2)
 		{
@@ -341,13 +349,13 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 			parentIdx = -1;
 		}
 	}
+	cout << "已识别定位点数目：" << qrPoint.size() << endl;
 	//绘制二维码定位角
 	for (int i = 0; i < qrPoint.size(); i++)
 	{
 		Rect rect = boundingRect((Mat)qrPoint[i]);
 		rectangle(srcImg, rect, Scalar(255), 2);
 	}
-
 	vector<Point> qr_center;					//各个定位角的中心
 	vector<int> state(qrPoint.size(), 0);	//状态变量，记录该定位角是否属于某个完整二维码（只有三个定位角同时出现才认为是一个完整的二维码）
 	vector<vector<Point>> qrBox;			//保存所有二维码整体位置框
@@ -392,7 +400,7 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 					Mat img_tmp;
 					img_tmp = crop_image(src_gray, rotated_rect);
 					recog_Qr(img_tmp);
-					return 0;;
+					return 0;
 				}
 			}
 		}
@@ -403,6 +411,7 @@ void Decoder::png_to_bin()
 {
 	Mat image;
 	vector<vector<Point>> QrPoint;
-	image = imread("2.png");
+	bin_text = new bool[MAX_BIN_PER_IMAGE];
+	image = imread("../example/pngs/0.png");
 	find_Qr_anchor(image, QrPoint);
 }
