@@ -1,4 +1,4 @@
-#include "./../include/Encoder.h"
+#include "../../include/encode/Encoder.h"
 
 int main(int argc, char** argv)
 {

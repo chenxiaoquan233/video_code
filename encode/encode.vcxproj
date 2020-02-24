@@ -19,16 +19,17 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\Encoder.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="src\Encoder.cpp" />
-    <ClCompile Include="src\Main.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <Text Include="..\example\1.txt" />
     <Text Include="..\example\2.txt" />
     <Text Include="..\example\3.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\base.h" />
+    <ClInclude Include="..\include\encode\Encoder.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\scr\encode\Encoder.cpp" />
+    <ClCompile Include="..\scr\encode\Main.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>

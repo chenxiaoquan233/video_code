@@ -1,20 +1,11 @@
-#include "./../include/Encoder.h"
+#include "../../include/encode/Encoder.h"
 
 Encoder::Encoder(const char* _png_path):png_path(_png_path)
 {
-	BLOCK_WIDTH = BLOCK_SIZE * BASE_BLOCK_WIDTH;
-	ANCHOR_AREA = 3 * (ANCHOR_BASE_BLOCKS / BLOCK_SIZE) * (ANCHOR_BASE_BLOCKS / BLOCK_SIZE);
-	MAX_BIN_PER_IMAGE = (IMG_X / BLOCK_WIDTH * IMG_Y / BLOCK_WIDTH - ANCHOR_AREA);
 }
 
 Encoder::~Encoder()
 {
-
-}
-
-void Encoder::set_output_file(char* _output_file)
-{
-	this->output_file = _output_file;
 }
 
 void Encoder::set_video_length(char* _video_length)
@@ -70,14 +61,6 @@ int Encoder::text_to_bin(char* _input_file_name)
 		}
 	}
 	return res/2;
-
-	/*bin_text = new bool[MAX_BIN_PER_IMAGE];
-	char* text_tmp = new char[MAX_BIN_PER_IMAGE / 8];
-	int res = fread(text_tmp, 1, MAX_BIN_PER_IMAGE / 8, input_file);
-	for (int i = 0; i < res; ++i)
-		for (int j = 0; j < 8; ++j)
-			bin_text[i * 8 + j] = text_tmp[i] & (1 << j);
-	return res;*/
 }
 
 void Encoder::bin_to_png(bool* str, int size)

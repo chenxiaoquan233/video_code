@@ -15,15 +15,18 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\decoder.h">
+    <ClInclude Include="..\include\decode\decoder.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\base.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\Main.cpp">
+    <ClCompile Include="..\scr\decode\Decoder.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="src\Decoder.cpp">
+    <ClCompile Include="..\scr\decode\Main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
