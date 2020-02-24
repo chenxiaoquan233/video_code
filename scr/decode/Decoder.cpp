@@ -84,17 +84,6 @@ int Decoder::recog_Qr(Mat& image1)
 			else bin_text[count++] = true;
 		}
 	}
-	char a = 0;
-	for (int i = 1; i <= 2112; ++i)
-	{
-		a <<= 1;
-		a += (bin_text[i-1] ? 1 : 0);
-		if (!(i % 7))
-		{
-			putchar(a);
-			a = 0;
-		}
-	}
 	return count;
 }
 
@@ -459,10 +448,12 @@ int Decoder::bin_to_text()
 			tmp_code += bin_text[26 * i + j]<<j;
 		}
 		tmp_code = CorrectError(tmp_code);
-		for (int i = 8; i < 16; i++)
-			text[2 * i] += tmp_code & (1 << i) << i;
-		for (int i = 0; i < 8; i++)
-			text[2 * i + 1] += tmp_code & (1 << i) << i;
+		text[2 * i] = 0;
+		text[2 * i + 1] = 0;
+		for (int j = 8; j < 16; j++)
+			text[2 * i] += (tmp_code & (1 << j)) >> 8;
+		for (int j = 0; j < 8; j++)
+			text[2 * i + 1] += tmp_code & (1 << j);
 		putchar(text[2 * i]);
 		putchar(text[2 * i + 1]);
 	}
