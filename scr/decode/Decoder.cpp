@@ -1,6 +1,6 @@
 #include "../../include/decode/decoder.h"
 
-Decoder::Decoder()
+Decoder::Decoder(const char* _png_path):png_path(_png_path)
 {
 }
 
@@ -10,13 +10,43 @@ Decoder::~Decoder()
 
 int Decoder::decode(char* _input_video_path, char* _output_text_path)
 {
-	png_to_bin();
+	int png_num = mp4_to_png(_input_video_path, 3);
+	/*for (int i = 0; i < png_num; ++i)
+	{*/
+		bin_text = new bool[MAX_BIN_PER_IMAGE];
+		png_to_bin(0);
+		bin_to_text();
+		delete bin_text;
+	/*}*/
+
 	return 0;
 }
 
-int Decoder::mp4_to_png(char* _video_path)
+int Decoder::mp4_to_png(char* _video_path, int fpp)
 {
-	return 0;
+	VideoCapture capture(_video_path);
+	int frame_width = (int)capture.get(CAP_PROP_FRAME_WIDTH);
+	int frame_height = (int)capture.get(CAP_PROP_FRAME_HEIGHT);
+	float frame_fps = capture.get(CAP_PROP_FPS);
+	int frame_number = capture.get(CAP_PROP_FRAME_COUNT);//总帧数
+	cout << "frame_width is " << frame_width << endl;
+	cout << "frame_height is " << frame_height << endl;
+	cout << "frame_fps is " << frame_fps << endl;
+	int png_num = 0;//统计生成图片的数量
+	float frame_space = fpp * frame_fps / 30; //每两张不同图片之间的间隔
+	Mat frame;
+	for (int i = 0; i < frame_number; i++)
+	{
+		capture.read(frame);
+		if (i == (int)png_num * frame_space)
+		{
+			char image_name[32];
+			sprintf(image_name, "%s%d.png", png_path, png_num);
+			imwrite(image_name, frame);
+			png_num++;
+		}
+	}
+	return png_num;
 }
 
 int Decoder::recog_Qr(Mat& image1)
@@ -407,11 +437,107 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 	}
 }
 
-void Decoder::png_to_bin()
+void Decoder::png_to_bin(int num)
 {
 	Mat image;
 	vector<vector<Point>> QrPoint;
-	bin_text = new bool[MAX_BIN_PER_IMAGE];
-	image = imread("../example/pngs/0.png");
+	char png_name[32];
+	sprintf(png_name, "../example/pngs/%d.png", num);
+	image = imread(png_name);
 	find_Qr_anchor(image, QrPoint);
+}
+int Decoder::bin_to_text()
+{
+	int char_sum = MAX_BIN_PER_IMAGE / 26 * 2;
+	text = new char[char_sum];
+	unsigned int tmp_code = 0;
+	for (int i = 0; i < char_sum / 2; ++i)
+	{
+		tmp_code = 0;
+		for (int j = 0; j < 26; ++j)
+		{
+			tmp_code += bin_text[26 * i + j]<<j;
+		}
+		tmp_code = CorrectError(tmp_code);
+		for (int i = 8; i < 16; i++)
+			text[2 * i] += tmp_code & (1 << i) << i;
+		for (int i = 0; i < 8; i++)
+			text[2 * i + 1] += tmp_code & (1 << i) << i;
+		putchar(text[2 * i]);
+		putchar(text[2 * i + 1]);
+	}
+	putchar('\n');
+	return char_sum;
+}
+unsigned int Decoder::GetFEC(unsigned int CX) {
+	unsigned int RX;
+	unsigned int tmp;
+	unsigned int gx = 0x05B9 << (26 - 11);
+
+	CX = CX << 10;
+	tmp = CX;
+	for (int i = 0; i < 16; i++) 
+	{
+		if ((CX & 0x2000000) != 0) 
+		{
+			CX ^= gx;
+		}
+		CX = CX << 1;
+	}
+	RX = CX >> 16;
+	return RX;
+}
+void Decoder::CreateCheckMatrix() 
+{
+	unsigned int RX, CX;
+	CX = 1 << 15;
+	for (int i = 0; i < 16; i++) {
+		if (i < 16) {
+			RX = GetFEC(CX);
+			CheckMatrix[i][0] = RX;
+			CheckMatrix[i][1] = CX << 10;
+		}
+		CX = CX >> 1;
+	}
+	CX = 1 << 9;
+	for (int i = 0; i < 10; i++) {
+		CheckMatrix[i + 16][0] = CX;
+		CheckMatrix[i + 16][1] = CX;
+		CX = CX >> 1;
+	}
+}
+unsigned int Decoder::CorrectError(unsigned int code) {
+	unsigned int encode = 0;
+	unsigned int decode = 0;
+	unsigned int gx = 0x05B9 << (26 - 11);
+	unsigned int res;
+	decode = code;
+	for (int i = 0; i < 16; i++)
+	{
+		if ((code & 0x2000000) != 0) {
+			code ^= gx;
+		}
+		code = code << 1;
+	}
+	res = code >> (26 - 10);
+	if (res == 0) {
+		return decode >> 10;
+	}
+	//2.2 correct one bit error
+	for (int i = 0; i < 26; i++) {
+		if (res == CheckMatrix[i][0]) {
+			decode = decode ^ CheckMatrix[i][1];
+			return decode >> 10;
+		}
+	}
+	//2.3 correct two bit error
+	for (int i = 0; i < 26; i++) {
+		for (int j = i + 1; j < 26; j++) {
+			if (res == (CheckMatrix[i][0] ^ CheckMatrix[j][0])) {
+				decode = decode ^ CheckMatrix[i][1] ^ CheckMatrix[j][1];
+				return decode >> 10;
+			}
+		}
+	}
+	return decode >> 10;
 }
