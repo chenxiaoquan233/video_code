@@ -11,13 +11,13 @@ Decoder::~Decoder()
 int Decoder::decode(char* _input_video_path, char* _output_text_path)
 {
 	int png_num = mp4_to_png(_input_video_path, 3);
-	/*for (int i = 0; i < png_num; ++i)
-	{*/
+	for (int i = 0; i < png_num; ++i)
+	{
 		bin_text = new bool[MAX_BIN_PER_IMAGE];
-		png_to_bin(0);
+		png_to_bin(i);
 		bin_to_text();
 		delete bin_text;
-	/*}*/
+	}
 
 	return 0;
 }
@@ -32,13 +32,14 @@ int Decoder::mp4_to_png(char* _video_path, int fpp)
 	cout << "frame_width is " << frame_width << endl;
 	cout << "frame_height is " << frame_height << endl;
 	cout << "frame_fps is " << frame_fps << endl;
+	cout << "frame_number is " << frame_number << endl;
 	int png_num = 0;//统计生成图片的数量
 	float frame_space = fpp * frame_fps / 30; //每两张不同图片之间的间隔
 	Mat frame;
-	for (int i = 0; i < frame_number; i++)
+	for (int i = 0; i < frame_number-1; i++)
 	{
 		capture.read(frame);
-		if (i == (int)png_num * frame_space)
+		if (i == (int)(png_num * frame_space))
 		{
 			char image_name[32];
 			sprintf(image_name, "%s%d.png", png_path, png_num);
@@ -431,7 +432,7 @@ void Decoder::png_to_bin(int num)
 	Mat image;
 	vector<vector<Point>> QrPoint;
 	char png_name[32];
-	sprintf(png_name, "../example/pngs/%d.png", num);
+	sprintf(png_name, "../example/decode/pngs/%d.png", num);
 	image = imread(png_name);
 	find_Qr_anchor(image, QrPoint);
 }

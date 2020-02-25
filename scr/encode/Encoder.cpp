@@ -27,7 +27,7 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 		bin_to_png(bin_text, len * 26);		//Í¼Æ¬Éú³É
 		png_sum++;
 	}
-	png_to_mp4(_output_file_name, fps, video_length / 1000 * fps / (png_sum-1), IMG_Y+20, IMG_X+20);
+	png_to_mp4(_output_file_name, fps,3, IMG_Y+20, IMG_X+20);
 	return 0;
 }
 
