@@ -3,11 +3,9 @@
 Decoder::Decoder(const char* _png_path):png_path(_png_path)
 {
 }
-
 Decoder::~Decoder()
 {
 }
-
 int Decoder::decode(char* _input_video_path, char* _output_text_path)
 {
 	int png_num = mp4_to_png(_input_video_path, 3);
@@ -18,10 +16,8 @@ int Decoder::decode(char* _input_video_path, char* _output_text_path)
 		bin_to_text();
 		delete bin_text;
 	}
-
 	return 0;
 }
-
 int Decoder::mp4_to_png(char* _video_path, int fpp)
 {
 	VideoCapture capture(_video_path);
@@ -49,22 +45,19 @@ int Decoder::mp4_to_png(char* _video_path, int fpp)
 	}
 	return png_num;
 }
-
 int Decoder::recog_Qr(Mat& image1)
 {
 	int count = 0;
 	Mat image = Mat::zeros(720, 1280, CV_8UC3);
 	resize(image1, image, image.size());
-	//Scalar color1 = image.at<uchar>(10, 10);//黑0
-	//Scalar color2 = image.at<uchar>(150, 150);//白1
 
 	for (int p = 0; p < ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
 	{
 		for (int q = 0; q < IMG_Y / BLOCK_WIDTH - 2 * ANCHOR_BASE_BLOCKS / BLOCK_SIZE; q++)
 		{
 			uchar color = image.at<uchar>(Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q + BLOCK_WIDTH / 2, 0 + BLOCK_WIDTH * p + BLOCK_WIDTH / 2));
-			if (color < 128) bin_text[count++] = false;
-			else bin_text[count++] = true;
+			if (color < 128) bin_text[count++] = false;// putchar('0');
+			else bin_text[count++] = true;// putchar('1');
 		}
 	}
 	for (int p = 0; p < IMG_X / BLOCK_WIDTH - 2 * ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
@@ -72,8 +65,8 @@ int Decoder::recog_Qr(Mat& image1)
 		for (int q = 0; q < IMG_Y / BLOCK_WIDTH; q++)
 		{
 			uchar color = image.at<uchar>(Point(0 + BLOCK_WIDTH * q + BLOCK_WIDTH / 2, BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p + BLOCK_WIDTH / 2));
-			if (color < 128) bin_text[count++] = false;
-			else bin_text[count++] = true;;
+			if (color < 128) bin_text[count++] = false;// , putchar('0');
+			else bin_text[count++] = true;// , putchar('1');
 		}
 	}
 	for (int p = 0; p < ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
@@ -81,13 +74,12 @@ int Decoder::recog_Qr(Mat& image1)
 		for (int q = 0; q < IMG_Y / BLOCK_WIDTH - ANCHOR_BASE_BLOCKS / BLOCK_SIZE; q++)
 		{
 			uchar color = image.at<uchar>(Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q + BLOCK_WIDTH / 2, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p + BLOCK_WIDTH / 2));
-			if (color < 128) bin_text[count++] = false;
-			else bin_text[count++] = true;
+			if (color < 128) bin_text[count++] = false;// , putchar('0');
+			else bin_text[count++] = true;// , putchar('1');
 		}
 	}
 	return count;
 }
-
 bool Decoder::Qr_rate(float rate)
 {
 	//大概比例 不能太严格
@@ -325,17 +317,119 @@ bool Decoder::Qr_point(vector<Point>& contour, Mat& img, int i)
 	bool result = IsQrColorRate(cropImg, flag);
 	return result;
 }
+
+Mat transformCorner(Mat src, RotatedRect rect)
+{
+	Point center = rect.center;
+	Point TopLeft = Point(cvRound(center.x), cvRound(center.y)) - Point(rect.size.height / 2, rect.size.width / 2);
+	TopLeft.x = TopLeft.x > src.cols ? src.cols : TopLeft.x;
+	TopLeft.x = TopLeft.x < 0 ? 0 : TopLeft.x;
+	TopLeft.y = TopLeft.y > src.rows ? src.rows : TopLeft.y;
+	TopLeft.y = TopLeft.y < 0 ? 0 : TopLeft.y;
+
+	Rect RoiRect = Rect(TopLeft.x, TopLeft.y, rect.size.width, rect.size.height);
+	double angle = rect.angle;
+	Mat mask, roi, dst;
+	Mat image;
+	Size sz = src.size();
+	mask = Mat::zeros(src.size(), CV_8U);
+	vector<Point> contour;
+	Point2f points[4];
+	rect.points(points);
+	for (int i = 0; i < 4; i++)
+		contour.push_back(points[i]);
+	vector<vector<Point>> contours;
+	contours.push_back(contour);
+	drawContours(mask, contours, 0, Scalar(1), -1);
+
+	src.copyTo(dst, mask);
+	//roi = dst(RoiRect);
+	Mat M = getRotationMatrix2D(center, angle, 1);
+	warpAffine(dst, image, M, sz);
+	roi = image(RoiRect);
+
+	return roi;
+}
+double Ratete(Mat count)
+{
+	int number = 0;
+	int allpixel = 0;
+	for (int row = 0; row < count.rows; row++)
+	{
+		for (int col = 0; col < count.cols; col++)
+		{
+			if (count.at<uchar>(row, col) == 255)
+			{
+				number++;
+			}
+			allpixel++;
+		}
+	}
+	return (double)number / allpixel;
+}
+bool isCorner(Mat& image)
+{
+	Mat mask, dstGopy;
+	Mat dstGray;
+	mask = image.clone();
+	cvtColor(image, dstGray, COLOR_BGR2GRAY);
+	threshold(dstGray, dstGray, 100, 255, THRESH_BINARY_INV);
+	vector<vector<Point>> contours;
+	vector<Vec4i> hierarchy;
+	findContours(dstGray, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+	for (int i = 0; i < contours.size(); i++)
+	{
+		if (hierarchy[i][2] == -1 && hierarchy[i][3])
+		{
+			Rect rect = boundingRect(Mat(contours[i]));
+			rectangle(image, rect, Scalar(0, 0, 255), 2);
+			/******************由图可知最里面的矩形宽度占总宽的3/7***********************/
+			if (rect.width < mask.cols * 2 / 7)      //2/7是为了防止一些微小的仿射
+				continue;
+			if (Ratete(dstGray(rect)) > 0.75)       //0.75是我测试几张图片的经验值 可根据情况设置(测试数量并不多)
+			{
+				rectangle(mask, rect, Scalar(0, 0, 255), 2);
+				return true;
+			}
+		}
+	}
+	return  false;
+}
+
+void anchor_sequence(vector<Point2f>& anchor_center)
+{
+	Point2f tmp_center[3];
+	double a0, a1, a2;
+	a0 = abs((anchor_center[1].x - anchor_center[0].x) * (anchor_center[2].x - anchor_center[0].x) + (anchor_center[1].y - anchor_center[0].y) * (anchor_center[2].y - anchor_center[0].y));
+	a1 = abs((anchor_center[0].x - anchor_center[1].x) * (anchor_center[2].x - anchor_center[1].x) + (anchor_center[0].y - anchor_center[1].y) * (anchor_center[2].y - anchor_center[1].y));
+	a2 = abs((anchor_center[1].x - anchor_center[2].x) * (anchor_center[0].x - anchor_center[2].x) + (anchor_center[1].y - anchor_center[2].y) * (anchor_center[0].y - anchor_center[2].y));
+	if (a0 <= a1 && a0 <= a2) tmp_center[1] = anchor_center[0], anchor_center.erase(anchor_center.begin() + 0);
+	if (a1 <= a0 && a1 <= a2) tmp_center[1] = anchor_center[1], anchor_center.erase(anchor_center.begin() + 1);
+	if (a2 <= a1 && a2 <= a0) tmp_center[1] = anchor_center[2], anchor_center.erase(anchor_center.begin() + 2);
+	double d0, d2;
+	d0 = abs((anchor_center[0].x - tmp_center[1].x) * (anchor_center[0].x - tmp_center[1].x) + (anchor_center[0].y - tmp_center[1].y) * (anchor_center[0].y - tmp_center[1].y));
+	d2 = abs((anchor_center[1].x - tmp_center[1].x) * (anchor_center[1].x - tmp_center[1].x) + (anchor_center[1].y - tmp_center[1].y) * (anchor_center[1].y - tmp_center[1].y));
+	if (d0 > d2) tmp_center[2] = anchor_center[0], tmp_center[0] = anchor_center[1];
+	else tmp_center[0] = anchor_center[0], tmp_center[2] = anchor_center[1];
+	anchor_center.pop_back();
+	anchor_center.pop_back();
+	anchor_center.push_back(tmp_center[0]);
+	anchor_center.push_back(tmp_center[1]);
+	anchor_center.push_back(tmp_center[2]);
+}
+
 //找出二维码框进行截取解码
 int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 {
-	//彩色图转灰度图
-	Mat src_gray;
-	cvtColor(srcImg, src_gray, COLOR_BGR2GRAY);
+	/*//彩色图转灰度图
+	Mat srcGray;
+	cvtColor(srcImg, srcGray, COLOR_BGR2GRAY);
 
 	//二值化
 	Mat threshold_output;
-	threshold(src_gray, threshold_output, 0, 255, THRESH_BINARY | THRESH_OTSU);
+	threshold(srcGray, threshold_output, 0, 255, THRESH_BINARY | THRESH_OTSU);
 	Mat threshold_output_copy = threshold_output.clone();
+	imwrite("threshold.png", threshold_output_copy);
 	//调用查找轮廓函数
 	findContours(threshold_output, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE, Point(0, 0));
 	Mat srcImg_copy = srcImg.clone();
@@ -347,7 +441,7 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 	}
 	//通过黑色定位角作为父轮廓，有两个子轮廓的特点，筛选出三个定位角
 	int parentIdx = -1;
-
+	imwrite("contours.png", srcImg_copy);
 	for (int i = 0; i < contours.size(); i++)
 	{
 		int k = i;
@@ -376,18 +470,132 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 		Rect rect = boundingRect((Mat)qrPoint[i]);
 		rectangle(srcImg, rect, Scalar(255), 2);
 	}
-	vector<Point> qr_center;					//各个定位角的中心
+	imwrite("anchors.png", srcImg);*/
+
+	if (!srcImg.data)
+		return -1;
+	Mat srcGray;
+	resize(srcImg, srcImg, Size(1280,720));
+
+	vector<vector<Point>> contour2;
+
+	cvtColor(srcImg, srcGray, COLOR_BGR2GRAY);
+	blur(srcGray, srcGray, Size(3, 3));
+	equalizeHist(srcGray, srcGray);
+
+	threshold(srcGray, srcGray, 20, 255, THRESH_BINARY | THRESH_OTSU);
+
+	findContours(srcGray, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+	
+	int ic = 0;
+	int parentIdx = -1;
+
+	for (int i = 0; i < contours.size(); i++)
+	{
+		int k = i;
+		int ic = 0;
+		while (hierarchy[k][2] != -1)
+		{
+			if (ic == 0)
+				parentIdx = i;
+			k = hierarchy[k][2];
+			ic++;
+		}
+		//有两个子轮廓才是二维码的顶点
+		if (ic >= 2)
+		{
+			bool isQr = Qr_point(contours[parentIdx], srcGray, parentIdx);
+			//保存找到的三个黑色定位角
+			if (isQr)
+				contour2.push_back(contours[parentIdx]);
+			parentIdx = -1;
+		}
+	}
+
+	vector<Point2f> qr_center,src_center;
+	for (int i = 0; i < contour2.size(); i++)
+	{
+		
+		double area = contourArea(contour2[i]);
+		if (area < 100)
+			continue;
+		RotatedRect rect = minAreaRect(Mat(contour2[i]));
+		double w = rect.size.width;
+		double h = rect.size.height;
+		double rate = min(w, h) / max(w, h);
+		if (rate > 0.85)
+		{
+			Mat image = transformCorner(srcImg, rect);
+			char tmp_name[20];
+			sprintf(tmp_name, "cor%d.png", i);
+			imwrite(tmp_name, image);
+			if (isCorner(image))
+			{
+				Point2f points[4];
+				rect.points(points);
+				/*for (int i = 0; i < 4; i++)
+					line(srcImg, points[i], points[(i + 1) % 4], Scalar(0, 255, 255), 5);*/
+				qr_center.push_back(rect.center);
+				qrPoint.push_back(contour2[i]);
+			}
+		}
+	}
+
+	for (int i = 0; i < qrPoint.size(); i++)
+	{
+		RotatedRect rect = minAreaRect(qrPoint[i]);
+		Point2f boxpoint[4];
+		rect.points(boxpoint);
+		qrPoint[i].clear();
+		for (int j = 0; j < 4; j++)
+		{
+			qrPoint[i].push_back(boxpoint[j]);
+			line(srcImg, boxpoint[i], boxpoint[(i + 1) % 4], Scalar(0, 0, 255), 3);
+		}
+	}
+	imwrite("box.png", srcImg);
+	Mat output;
+	//warpAffine(srcImg, output, M, Size(720,1280));
+	
+	/*imshow("srcImg", srcImg);
+	waitKey(0);*/
+
+
+	/*vector<Point2f> qr_center,src_center;					//各个定位角的中心
 	vector<int> state(qrPoint.size(), 0);	//状态变量，记录该定位角是否属于某个完整二维码（只有三个定位角同时出现才认为是一个完整的二维码）
 	vector<vector<Point>> qrBox;			//保存所有二维码整体位置框
 	for (int i = 0; i < qrPoint.size(); i++)
 	{
-		Point tmp = qrPoint[i][0];
+		Point2f tmp = qrPoint[i][0];
+		printf("%d,%d ",qrPoint[i][0].x,qrPoint[i][0].y);
 		for (int m = 1; m < qrPoint[i].size(); m++)
-			tmp += qrPoint[i][m];
+			tmp += Point2f(qrPoint[i][m]), printf("%d,%d ", qrPoint[i][m].x, qrPoint[i][m].y);
 		tmp = tmp / (int)qrPoint[i].size();
 		qr_center.push_back(tmp);
+		printf("%f,%f\n", tmp.x, tmp.y);
+	}*/
+	if (qr_center.size() == 3)
+	{
+		anchor_sequence(qr_center);
+		for (int i = 0; i < qr_center.size(); ++i)
+			src_center.push_back(qr_center[i]);
+		src_center.push_back(Point2f(qr_center[2].x + (qr_center[0].x - qr_center[1].x), qr_center[0].y + (qr_center[2].y - qr_center[1].y)));
+		for (int i = 0; i < src_center.size(); ++i)
+			line(srcImg, src_center[i], src_center[(i + 1) % 4], Scalar(0, 255, 255), 5);
+		imwrite("centers.png", srcImg);
+		vector<Point2f> origin_center;
+		origin_center.push_back(Point2f(73, 647));
+		origin_center.push_back(Point2f(73, 73));
+		origin_center.push_back(Point2f(1207, 73));
+		origin_center.push_back(Point2f(1207, 647));
+		Mat warp_mat = getPerspectiveTransform(src_center, origin_center);
+		warpPerspective(srcGray, output, warp_mat, srcImg.size());
+		imwrite("test.png", output);
+		recog_Qr(output);
 	}
-	for (int i = 0; i < qrPoint.size(); i++) {
+	return 0;
+
+	/*for (int i = 0; i < qrPoint.size(); i++) {
 		if (state[i] == 1) continue;
 		for (int j = 0; j < qrPoint.size(); j++) {
 			if (j == i || state[j] == 1) continue;
@@ -418,21 +626,20 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 						box.push_back(points[m]);
 					qrBox.push_back(box);//二维码定位框
 					Mat img_tmp;
-					img_tmp = crop_image(src_gray, rotated_rect);
+					img_tmp = crop_image(srcGray, rotated_rect);
 					recog_Qr(img_tmp);
 					return 0;
 				}
 			}
 		}
-	}
+	}*/
 }
-
 void Decoder::png_to_bin(int num)
 {
 	Mat image;
 	vector<vector<Point>> QrPoint;
-	char png_name[32];
-	sprintf(png_name, "../example/decode/pngs/%d.png", num);
+	char png_name[64];
+	sprintf(png_name, "../example/decode/pngs/%d.png",num);
 	image = imread(png_name);
 	find_Qr_anchor(image, QrPoint);
 }
