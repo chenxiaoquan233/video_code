@@ -80,6 +80,10 @@ void Encoder::draw_anchors(Mat& image)
 	rectangle(image, Point(1140 + 10, 0 + 10), Point(1280 + 10, 140 + 10), Scalar(0), FILLED, LINE_8);
 	rectangle(image, Point(1160 + 10, 20 + 10), Point(1260 + 10, 120 + 10), Scalar(255), FILLED, LINE_8);
 	rectangle(image, Point(1180 + 10, 40 + 10), Point(1240 + 10, 100 + 10), Scalar(0), FILLED, LINE_8);
+	//定位点四
+	rectangle(image, Point(1140 + 10, 580 + 10), Point(1240 + 10, 680 + 10), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(1160 + 10, 600 + 10), Point(1220 + 10, 660 + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(1180 + 10, 620 + 10), Point(1200 + 10, 640 + 10), Scalar(0), FILLED, LINE_8);
 }
 
 void Encoder::bin_to_png(bool* str, int size)
@@ -112,11 +116,41 @@ void Encoder::bin_to_png(bool* str, int size)
 			}
 		}
 	}
-	for (int p = 0; p < ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
+	for (int q = 0; q < IMG_Y / BLOCK_WIDTH - ANCHOR_BASE_BLOCKS / BLOCK_SIZE; q++)
+	{
+		rectangle(image, Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q + 10, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + 10), Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (q + 1) + 10, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH + 10), Scalar(255 * str[count++]), FILLED, LINE_8);
+		if (count >= size)
+		{
+			str[count] = 0;
+		}
+	}
+	for (int p = 0; p < MINI_ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
+	{
+		for (int q = 0; q < IMG_Y / BLOCK_WIDTH - 2 * ANCHOR_BASE_BLOCKS / BLOCK_SIZE + 1; q++)
+		{
+			rectangle(image, Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q + 10, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (p+1) + 10), Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (q + 1) + 10, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (p + 2) + 10), Scalar(255 * str[count++]), FILLED, LINE_8);
+			if (count >= size)
+			{
+				str[count] = 0;
+			}
+		}
+	}
+	for (int p = 0; p < MINI_ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
+	{
+		for (int q = 0; q < 2; q++)
+		{
+			rectangle(image, Point(IMG_Y - ANCHOR_BASE_BLOCKS * BASE_BLOCK_WIDTH + MINI_ANCHOR_BASE_BLOCKS * BASE_BLOCK_WIDTH + BLOCK_WIDTH * q + 10 + 20, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (p + 1) + 10), Point(IMG_Y - ANCHOR_BASE_BLOCKS * BASE_BLOCK_WIDTH + MINI_ANCHOR_BASE_BLOCKS * BASE_BLOCK_WIDTH + BLOCK_WIDTH * (q + 1) + 10 + 20, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (p + 2) + 10), Scalar(255 * str[count++]), FILLED, LINE_8);
+			if (count >= size)
+			{
+				str[count] = 0;
+			}
+		}
+	}
+	for (int p = 0; p < 2; p++)
 	{
 		for (int q = 0; q < IMG_Y / BLOCK_WIDTH - ANCHOR_BASE_BLOCKS / BLOCK_SIZE; q++)
 		{
-			rectangle(image, Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q + 10, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p + 10), Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (q+1) + 10, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (p+1) + 10), Scalar(255 * str[count++]), FILLED, LINE_8);
+			rectangle(image, Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q + 10, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BASE_BLOCK_WIDTH * MINI_ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p + 20 + 10), Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (q+1) + 10, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BASE_BLOCK_WIDTH * MINI_ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * (p+1) + 20 + 10), Scalar(255 * str[count++]), FILLED, LINE_8);
 			if (count >= size)
 			{
 				str[count] = 0;
