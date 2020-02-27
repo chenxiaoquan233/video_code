@@ -63,25 +63,32 @@ int Encoder::text_to_bin(char* _input_file_name)
 	return res/2;
 }
 
+void Encoder::draw_anchors(Mat& image)
+{
+	//定位点一
+	rectangle(image, Point(0 + 10, 0 + 10), Point(160 + 10, 160 + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(0 + 10, 0 + 10), Point(140 + 10, 140 + 10), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(20 + 10, 20 + 10), Point(120 + 10, 120 + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(40 + 10, 40 + 10), Point(100 + 10, 100 + 10), Scalar(0), FILLED, LINE_8);
+	//定位点二
+	rectangle(image, Point(0 + 10, 560 + 10), Point(160 + 10, 720 + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(0 + 10, 580 + 10), Point(140 + 10, 720 + 10), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(20 + 10, 600 + 10), Point(120 + 10, 700 + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(40 + 10, 620 + 10), Point(100 + 10, 680 + 10), Scalar(0), FILLED, LINE_8);
+	//定位点三
+	rectangle(image, Point(1120 + 10, 0 + 10), Point(1280 + 10, 160 + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(1140 + 10, 0 + 10), Point(1280 + 10, 140 + 10), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(1160 + 10, 20 + 10), Point(1260 + 10, 120 + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(1180 + 10, 40 + 10), Point(1240 + 10, 100 + 10), Scalar(0), FILLED, LINE_8);
+}
+
 void Encoder::bin_to_png(bool* str, int size)
 {
 	Mat image(IMG_X + 20, IMG_Y + 20, CV_8UC1);
 	rectangle(image, Point(0, 0), Point(IMG_Y + 20, IMG_X + 20), Scalar(255), FILLED, LINE_8);
-	//定位点一
-	rectangle(image, Point( 0 + 10,  0 + 10), Point(160 + 10, 160 + 10), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point( 0 + 10,  0 + 10), Point(140 + 10, 140 + 10), Scalar(0), FILLED, LINE_8);
-	rectangle(image, Point(20 + 10, 20 + 10), Point(120 + 10, 120 + 10), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(40 + 10, 40 + 10), Point(100 + 10, 100 + 10), Scalar(0), FILLED, LINE_8);
-	//定位点二
-	rectangle(image, Point( 0 + 10, 560 + 10), Point(160 + 10, 720 + 10), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point( 0 + 10, 580 + 10), Point(140 + 10, 720 + 10), Scalar(0), FILLED, LINE_8);
-	rectangle(image, Point(20 + 10, 600 + 10), Point(120 + 10, 700 + 10), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(40 + 10, 620 + 10), Point(100 + 10, 680 + 10), Scalar(0), FILLED, LINE_8);
-	//定位点三
-	rectangle(image, Point(1120 + 10,  0 + 10), Point(1280 + 10, 160 + 10), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(1140 + 10,  0 + 10), Point(1280 + 10, 140 + 10), Scalar(0), FILLED, LINE_8);
-	rectangle(image, Point(1160 + 10, 20 + 10), Point(1260 + 10, 120 + 10), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(1180 + 10, 40 + 10), Point(1240 + 10, 100 + 10), Scalar(0), FILLED, LINE_8);
+
+	draw_anchors(image);
+	
 	int count = 0;//统计已填充数目
 	for (int p = 0; p < ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
 	{

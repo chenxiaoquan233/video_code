@@ -23,4 +23,5 @@ public:
 	void bin_to_png(bool* str, int size);
 	int png_to_mp4(char* video_path, int fps, int fpp, int sizeX, int sizeY);
 	unsigned int getFEC(unsigned int CX);
+	void draw_anchors(Mat& img);
 };
