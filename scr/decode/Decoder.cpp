@@ -69,6 +69,16 @@ int Decoder::recog_Qr(Mat& image1)
 			else bin_text[count++] = true;// , putchar('1');
 		}
 	}
+	for (int p = 0; p < ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
+	{
+		for (int q = 0; q < IMG_Y / BLOCK_WIDTH -2 * ANCHOR_BASE_BLOCKS / BLOCK_SIZE; q++)
+		{
+			uchar color = image.at<uchar>(Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q + BLOCK_WIDTH / 2, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p + BLOCK_WIDTH / 2));
+			if (color < 128) bin_text[count++] = false;// , putchar('0');
+			else bin_text[count++] = true;// , putchar('1');
+		}
+	}
+	/*第二版3-6区块，留查
 	for (int p = 0; p < ANCHOR_BASE_BLOCKS / BLOCK_SIZE-MINI_ANCHOR_BASE_BLOCKS/BLOCK_SIZE-BOTTOM_BASE_BLOCKS/BLOCK_SIZE; p++)
 	{
 		for (int q = 0; q < IMG_Y / BLOCK_WIDTH - ANCHOR_BASE_BLOCKS / BLOCK_SIZE; q++)
@@ -105,6 +115,7 @@ int Decoder::recog_Qr(Mat& image1)
 			else bin_text[count++] = true;// , putchar('1');
 		}
 	}
+	*/
 	/*第一版第三区块，留查
 	for (int p = 0; p < ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
 	{
