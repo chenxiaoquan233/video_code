@@ -447,7 +447,26 @@ bool isCorner(Mat& image)
 
 void anchor_sequence(vector<Point2f>& anchor_center)
 {
-	Point2f tmp_center[3];
+	Point2f tmp_center[4],tmp;
+	for (int i = 0;i < 4;i++)
+		tmp_center[i] = anchor_center[i];
+	for(int i=0;i<4;i++)
+		for (int j = 0;j < 3;j++)
+		{
+			if ((tmp_center[i].x + tmp_center[i].y) > (tmp_center[i + 1].x + tmp_center[i + 1].y))
+				tmp = tmp_center[i];tmp_center[i] = tmp_center[i + 1];tmp_center[i + 1] = tmp;
+		}
+	if (tmp_center[1].y < tmp_center[2].y) {
+		tmp = tmp_center[1];tmp_center[1] = tmp_center[2];tmp_center[1] = tmp;
+	}
+	for (int i = 0;i < 4;i++)
+		anchor_center.pop_back();
+	anchor_center.push_back(tmp_center[1]);
+	anchor_center.push_back(tmp_center[0]);
+	anchor_center.push_back(tmp_center[2]);
+	anchor_center.push_back(tmp_center[3]);
+
+/*	Point2f tmp_center[3];
 	double a0, a1, a2;
 	a0 = abs((anchor_center[1].x - anchor_center[0].x) * (anchor_center[2].x - anchor_center[0].x) + (anchor_center[1].y - anchor_center[0].y) * (anchor_center[2].y - anchor_center[0].y));
 	a1 = abs((anchor_center[0].x - anchor_center[1].x) * (anchor_center[2].x - anchor_center[1].x) + (anchor_center[0].y - anchor_center[1].y) * (anchor_center[2].y - anchor_center[1].y));
@@ -464,7 +483,7 @@ void anchor_sequence(vector<Point2f>& anchor_center)
 	anchor_center.pop_back();
 	anchor_center.push_back(tmp_center[0]);
 	anchor_center.push_back(tmp_center[1]);
-	anchor_center.push_back(tmp_center[2]);
+	anchor_center.push_back(tmp_center[2]); */
 }
 
 //找出二维码框进行截取解码
@@ -554,7 +573,7 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 		if (ic >= 2)
 		{
 			bool isQr = Qr_point(contours[parentIdx], srcGray, parentIdx);
-			//保存找到的三个黑色定位角
+			//保存找到的四个黑色定位角
 			if (isQr)
 				contour2.push_back(contours[parentIdx]);
 			parentIdx = -1;
@@ -623,12 +642,12 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 		qr_center.push_back(tmp);
 		printf("%f,%f\n", tmp.x, tmp.y);
 	}*/
-	if (qr_center.size() == 3)
+	if (qr_center.size() == 4)
 	{
 		anchor_sequence(qr_center);
 		for (int i = 0; i < qr_center.size(); ++i)
 			src_center.push_back(qr_center[i]);
-		src_center.push_back(Point2f(qr_center[2].x + (qr_center[0].x - qr_center[1].x), qr_center[0].y + (qr_center[2].y - qr_center[1].y)));
+		//src_center.push_back(Point2f(qr_center[2].x + (qr_center[0].x - qr_center[1].x), qr_center[0].y + (qr_center[2].y - qr_center[1].y)));
 		for (int i = 0; i < src_center.size(); ++i)
 			line(srcImg, src_center[i], src_center[(i + 1) % 4], Scalar(0, 255, 255), 5);
 		imwrite("centers.png", srcImg);
