@@ -32,9 +32,8 @@ int Decoder::mp4_to_png(char* _video_path, int fpp)
 	int png_num = 0;//统计生成图片的数量
 	float frame_space = fpp * frame_fps / 30; //每两张不同图片之间的间隔
 	Mat frame;
-	for (int i = 0; i < frame_number-1; i++)
+	for (int i = 0; capture.read(frame); i++)
 	{
-		capture.read(frame);
 		if (i == (int)(png_num * frame_space))
 		{
 			char image_name[32];
