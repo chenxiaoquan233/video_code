@@ -450,8 +450,8 @@ void anchor_sequence(vector<Point2f>& anchor_center)
 	Point2f tmp_center[4],tmp;
 	for (int i = 0;i < 4;i++)
 		tmp_center[i] = anchor_center[i];
-	for(int i=0;i<4;i++)
-		for (int j = 0;j < 3;j++)
+	for(int j=0;j<4;j++)
+		for (int i = 0;i < 3;i++)
 		{
 			if ((tmp_center[i].x + tmp_center[i].y) > (tmp_center[i + 1].x + tmp_center[i + 1].y))
 				tmp = tmp_center[i];tmp_center[i] = tmp_center[i + 1];tmp_center[i + 1] = tmp;
