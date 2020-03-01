@@ -457,7 +457,7 @@ void anchor_sequence(vector<Point2f>& anchor_center)
 				tmp = tmp_center[i];tmp_center[i] = tmp_center[i + 1];tmp_center[i + 1] = tmp;
 		}
 	if (tmp_center[1].y < tmp_center[2].y) {
-		tmp = tmp_center[1];tmp_center[1] = tmp_center[2];tmp_center[1] = tmp;
+		tmp = tmp_center[1];tmp_center[1] = tmp_center[2];tmp_center[2] = tmp;
 	}
 	for (int i = 0;i < 4;i++)
 		anchor_center.pop_back();
