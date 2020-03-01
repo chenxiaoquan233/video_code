@@ -490,61 +490,12 @@ void anchor_sequence(vector<Point2f>& anchor_center)
 //找出二维码框进行截取解码
 int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 {
-	/*//彩色图转灰度图
-	Mat srcGray;
-	cvtColor(srcImg, srcGray, COLOR_BGR2GRAY);
-
-	//二值化
-	Mat threshold_output;
-	threshold(srcGray, threshold_output, 0, 255, THRESH_BINARY | THRESH_OTSU);
-	Mat threshold_output_copy = threshold_output.clone();
-	imwrite("threshold.png", threshold_output_copy);
-	//调用查找轮廓函数
-	findContours(threshold_output, contours, hierarchy, RETR_TREE, CHAIN_APPROX_NONE, Point(0, 0));
-	Mat srcImg_copy = srcImg.clone();
-	for (int i = 0; i < contours.size(); i++)
-	{
-		Rect rect = boundingRect((Mat)contours[i]);
-		float c = (float)rect.width / rect.height;
-		rectangle(srcImg_copy, rect, Scalar(255), 2);
-	}
-	//通过黑色定位角作为父轮廓，有两个子轮廓的特点，筛选出三个定位角
-	int parentIdx = -1;
-	imwrite("contours.png", srcImg_copy);
-	for (int i = 0; i < contours.size(); i++)
-	{
-		int k = i;
-		int ic = 0;
-		while (hierarchy[k][2] != -1)
-		{
-			if (ic == 0)
-				parentIdx = i;
-			k = hierarchy[k][2];
-			ic++;
-		}
-		//有两个子轮廓才是二维码的顶点
-		if (ic >= 2)
-		{
-			bool isQr = Qr_point(contours[parentIdx], threshold_output, parentIdx);
-			//保存找到的三个黑色定位角
-			if (isQr)
-				qrPoint.push_back(contours[parentIdx]);
-			parentIdx = -1;
-		}
-	}
-	cout << "已识别定位点数目：" << qrPoint.size() << endl;
-	//绘制二维码定位角
-	for (int i = 0; i < qrPoint.size(); i++)
-	{
-		Rect rect = boundingRect((Mat)qrPoint[i]);
-		rectangle(srcImg, rect, Scalar(255), 2);
-	}
-	imwrite("anchors.png", srcImg);*/
-
 	if (!srcImg.data)
 		return -1;
 	Mat srcGray;
-	resize(srcImg, srcImg, Size(1280,720));
+	int cols = srcImg.cols;
+	int rows = srcImg.rows;
+	//resize(srcImg, srcImg, Size(1280,720));
 
 	vector<vector<Point>> contour2;
 
@@ -624,25 +575,7 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 	}
 	imwrite("box.png", srcImg);
 	Mat output;
-	//warpAffine(srcImg, output, M, Size(720,1280));
-	
-	/*imshow("srcImg", srcImg);
-	waitKey(0);*/
 
-
-	/*vector<Point2f> qr_center,src_center;					//各个定位角的中心
-	vector<int> state(qrPoint.size(), 0);	//状态变量，记录该定位角是否属于某个完整二维码（只有三个定位角同时出现才认为是一个完整的二维码）
-	vector<vector<Point>> qrBox;			//保存所有二维码整体位置框
-	for (int i = 0; i < qrPoint.size(); i++)
-	{
-		Point2f tmp = qrPoint[i][0];
-		printf("%d,%d ",qrPoint[i][0].x,qrPoint[i][0].y);
-		for (int m = 1; m < qrPoint[i].size(); m++)
-			tmp += Point2f(qrPoint[i][m]), printf("%d,%d ", qrPoint[i][m].x, qrPoint[i][m].y);
-		tmp = tmp / (int)qrPoint[i].size();
-		qr_center.push_back(tmp);
-		printf("%f,%f\n", tmp.x, tmp.y);
-	}*/
 	if (qr_center.size() == 4)
 	{
 		anchor_sequence(qr_center);
@@ -653,62 +586,23 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 			line(srcImg, src_center[i], src_center[(i + 1) % 4], Scalar(0, 255, 255), 5);
 		imwrite("centers.png", srcImg);
 		vector<Point2f> origin_center;
-		origin_center.push_back(Point2f(73, 647));
-		origin_center.push_back(Point2f(73, 73));
-		origin_center.push_back(Point2f(1207, 73));
-		origin_center.push_back(Point2f(1207, 647));
+		origin_center.push_back(Point2f(cols *   73. / 1280, rows * 647. / 720));
+		origin_center.push_back(Point2f(cols *   73. / 1280, rows *  73. / 720));
+		origin_center.push_back(Point2f(cols * 1207. / 1280, rows *  73. / 720));
+		origin_center.push_back(Point2f(cols * 1207. / 1280, rows * 647. / 720));
 		Mat warp_mat = getPerspectiveTransform(src_center, origin_center);
 		warpPerspective(srcGray, output, warp_mat, srcImg.size());
 		imwrite("test.png", output);
 		recog_Qr(output);
 	}
 	return 0;
-
-	/*for (int i = 0; i < qrPoint.size(); i++) {
-		if (state[i] == 1) continue;
-		for (int j = 0; j < qrPoint.size(); j++) {
-			if (j == i || state[j] == 1) continue;
-			for (int k = 0; k < qrPoint.size(); k++) {
-				if (k == j || k == i || state[k] == 1)continue;
-
-				float Dij, Dik, Djk;
-				Dij = (qr_center[i].x - qr_center[j].x) * (qr_center[i].x - qr_center[j].x) + (qr_center[i].y - qr_center[j].y) * (qr_center[i].y - qr_center[j].y);
-				Dik = (qr_center[i].x - qr_center[k].x) * (qr_center[i].x - qr_center[k].x) + (qr_center[i].y - qr_center[k].y) * (qr_center[i].y - qr_center[k].y);
-				Djk = (qr_center[k].x - qr_center[j].x) * (qr_center[k].x - qr_center[j].x) + (qr_center[k].y - qr_center[j].y) * (qr_center[k].y - qr_center[j].y);
-				float ratio = Dij / Dik;
-				float ratio1 = (Dij + Dik) / Djk;
-				if (ratio > 0.2 && ratio < 1 && ratio1>0.85 && ratio1 < 1.15)
-				{
-					state[i] = 1;
-					state[j] = 1;
-					state[k] = 1;
-					vector<Point> contour;
-
-					contour.insert(contour.end(), qrPoint[i].begin(), qrPoint[i].end());
-					contour.insert(contour.end(), qrPoint[j].begin(), qrPoint[j].end());
-					contour.insert(contour.end(), qrPoint[k].begin(), qrPoint[k].end());
-					RotatedRect rotated_rect = minAreaRect(contour);
-					Point2f points[4];
-					rotated_rect.points(points);
-					vector<Point> box;
-					for (int m = 0; m < 4; m++)
-						box.push_back(points[m]);
-					qrBox.push_back(box);//二维码定位框
-					Mat img_tmp;
-					img_tmp = crop_image(srcGray, rotated_rect);
-					recog_Qr(img_tmp);
-					return 0;
-				}
-			}
-		}
-	}*/
 }
 void Decoder::png_to_bin(int num)
 {
 	Mat image;
 	vector<vector<Point>> QrPoint;
 	char png_name[64];
-	sprintf(png_name, "../example/pngs/encode/%d.png",num);
+	sprintf(png_name, "../example/decode/pngs/%d.png",num);
 	image = imread(png_name);
 	find_Qr_anchor(image, QrPoint);
 }
