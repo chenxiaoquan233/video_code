@@ -454,7 +454,9 @@ void anchor_sequence(vector<Point2f>& anchor_center)
 		for (int i = 0;i < 3;i++)
 		{
 			if ((tmp_center[i].x + tmp_center[i].y) > (tmp_center[i + 1].x + tmp_center[i + 1].y))
-				tmp = tmp_center[i];tmp_center[i] = tmp_center[i + 1];tmp_center[i + 1] = tmp;
+			{
+				tmp = tmp_center[i]; tmp_center[i] = tmp_center[i + 1]; tmp_center[i + 1] = tmp;
+			}
 		}
 	if (tmp_center[1].y < tmp_center[2].y) {
 		tmp = tmp_center[1];tmp_center[1] = tmp_center[2];tmp_center[2] = tmp;
@@ -707,7 +709,7 @@ void Decoder::png_to_bin(int num)
 	Mat image;
 	vector<vector<Point>> QrPoint;
 	char png_name[64];
-	sprintf(png_name, "../example/decode/pngs/%d.png",num);
+	sprintf(png_name, "../example/pngs/encode/%d.png",num);
 	image = imread(png_name);
 	find_Qr_anchor(image, QrPoint);
 }
