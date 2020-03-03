@@ -19,7 +19,7 @@ public:
 	void png_to_bin(int num);
 	bool Qr_rate(float rate);
 	int recog_Qr(Mat& image1);
-	int bin_to_text();
+	int bin_to_text(char* _output_text_path);
 	int mp4_to_png(char* _video_path, int fpp);
 	bool IsQrColorRate(cv::Mat& image, int flag);
 	bool Qr_color_rate_X(cv::Mat& image, int flag);

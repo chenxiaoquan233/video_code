@@ -41,7 +41,7 @@ int Encoder::text_to_bin(char* _input_file_name)
 	memset(text_tmp, 0, bit_message_len / 8 * sizeof(char));
 
 	text_tmp[0] = 0;
-	int res = fread(text_tmp, 1, hex_len * 2, input_file);
+	int res = fread(text_tmp + 1, 1, hex_len * 2 - 1, input_file);
 
 	hex = new unsigned int[res / 2];
 	for (int i = 0; i < res; ++i)
@@ -131,8 +131,6 @@ void Encoder::bin_to_png(bool* str, int size)
 		}
 		
 	}
-	
-	printf("%d\n", count);
 	char image_name[32];
 	sprintf(image_name, "%s%d.png", png_path, png_sum);
 	imwrite(image_name, image);

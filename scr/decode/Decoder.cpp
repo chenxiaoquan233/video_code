@@ -3,9 +3,11 @@
 Decoder::Decoder(const char* _png_path):png_path(_png_path)
 {
 }
+
 Decoder::~Decoder()
 {
 }
+
 int Decoder::decode(char* _input_video_path, char* _output_text_path)
 {
 	int png_num = mp4_to_png(_input_video_path, 3);
@@ -13,11 +15,12 @@ int Decoder::decode(char* _input_video_path, char* _output_text_path)
 	{
 		bin_text = new bool[MAX_BIN_PER_IMAGE];
 		png_to_bin(i);
-		bin_to_text();
+		bin_to_text(_output_text_path);
 		delete bin_text;
 	}
 	return 0;
 }
+
 int Decoder::mp4_to_png(char* _video_path, int fpp)
 {
 	VideoCapture capture(_video_path);
@@ -44,6 +47,7 @@ int Decoder::mp4_to_png(char* _video_path, int fpp)
 	}
 	return png_num;
 }
+
 int Decoder::recog_Qr(Mat& image1)
 {
 	int count = 0;
@@ -128,6 +132,7 @@ int Decoder::recog_Qr(Mat& image1)
 	*/
 	return count;
 }
+
 bool Decoder::Qr_rate(float rate)
 {
 	//大概比例 不能太严格
@@ -398,6 +403,7 @@ Mat transformCorner(Mat src, RotatedRect rect)
 
 	return roi;
 }
+
 double Ratete(Mat count)
 {
 	int number = 0;
@@ -415,6 +421,7 @@ double Ratete(Mat count)
 	}
 	return (double)number / allpixel;
 }
+
 bool isCorner(Mat& image)
 {
 	Mat mask, dstGopy;
@@ -597,6 +604,7 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 	}
 	return 0;
 }
+
 void Decoder::png_to_bin(int num)
 {
 	Mat image;
@@ -606,8 +614,10 @@ void Decoder::png_to_bin(int num)
 	image = imread(png_name);
 	find_Qr_anchor(image, QrPoint);
 }
-int Decoder::bin_to_text()
+
+int Decoder::bin_to_text(char* _output_file_path)
 {
+	FILE* output_file = fopen(_output_file_path, "a");
 	int char_sum = MAX_BIN_PER_IMAGE / 26 * 2;
 	text = new char[char_sum];
 	unsigned int tmp_code = 0;
@@ -625,12 +635,13 @@ int Decoder::bin_to_text()
 			text[2 * i] += (tmp_code & (1 << j)) >> 8;
 		for (int j = 0; j < 8; j++)
 			text[2 * i + 1] += tmp_code & (1 << j);
-		putchar(text[2 * i]);
-		putchar(text[2 * i + 1]);
+		fwrite(text + (2 * i), 1, 1, output_file);
+		fwrite(text + (2 * i + 1), 1, 1, output_file);
 	}
-	putchar('\n');
+	fclose(output_file);
 	return char_sum;
 }
+
 unsigned int Decoder::GetFEC(unsigned int CX) {
 	unsigned int RX;
 	unsigned int tmp;
@@ -649,6 +660,7 @@ unsigned int Decoder::GetFEC(unsigned int CX) {
 	RX = CX >> 16;
 	return RX;
 }
+
 void Decoder::CreateCheckMatrix() 
 {
 	unsigned int RX, CX;
@@ -668,6 +680,7 @@ void Decoder::CreateCheckMatrix()
 		CX = CX >> 1;
 	}
 }
+
 unsigned int Decoder::CorrectError(unsigned int code) {
 	unsigned int encode = 0;
 	unsigned int decode = 0;
