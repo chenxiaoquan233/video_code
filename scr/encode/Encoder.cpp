@@ -139,6 +139,8 @@ void Encoder::bin_to_png(bool* str, int size)
 int Encoder::png_to_mp4(char* video_path, int fps, int fpp, int sizeY, int sizeX)
 {
 	VideoWriter video(video_path, VideoWriter::fourcc('M', 'P', '4', 'V'), fps, Size(sizeY, sizeX));
+	Mat image_white = pure_white(IMG_X+20,IMG_Y+20);
+	video << image_white;
 	printf("%d,%d\n", fps, fpp);
 	for (int i = 0; i < png_sum; i++)
 	{
@@ -152,6 +154,7 @@ int Encoder::png_to_mp4(char* video_path, int fps, int fpp, int sizeY, int sizeX
 				video << image;
 		}
 	}
+	video << image_white;
 	puts("Processed\n");
 	return 0;
 }
