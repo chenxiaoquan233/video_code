@@ -177,5 +177,5 @@ Mat Encoder::pure_white(int IMG_X, int IMG_Y)
 {
 	Mat image(IMG_Y, IMG_X, CV_8UC3, Scalar(255, 255, 255));
 	rectangle(image, Point(0, 0), Point(IMG_X, IMG_Y), Scalar(255, 255, 255), FILLED, LINE_8);
-	imshow("clock", image);
+	return image;
 }
