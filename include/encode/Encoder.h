@@ -24,4 +24,5 @@ public:
 	int png_to_mp4(char* video_path, int fps, int fpp, int sizeX, int sizeY);
 	unsigned int getFEC(unsigned int CX);
 	void draw_anchors(Mat& img);
+	Mat pure_white(int IMG_X, int IMG_Y);
 };
