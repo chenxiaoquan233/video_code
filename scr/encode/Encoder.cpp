@@ -139,7 +139,7 @@ void Encoder::bin_to_png(bool* str, int size)
 int Encoder::png_to_mp4(char* video_path, int fps, int fpp, int sizeY, int sizeX)
 {
 	VideoWriter video(video_path, VideoWriter::fourcc('M', 'P', '4', 'V'), fps, Size(sizeY, sizeX));
-	Mat image_white = pure_white(IMG_X+20,IMG_Y+20);
+	Mat image_white = pure_white(sizeY, sizeX );
 	video << image_white;
 	printf("%d,%d\n", fps, fpp);
 	for (int i = 0; i < png_sum; i++)
@@ -173,9 +173,9 @@ unsigned int Encoder::getFEC(unsigned int CX)
 	RX = CX >> 16;
 	return RX;
 }
-Mat Encoder::pure_white(int IMG_X, int IMG_Y)
+Mat Encoder::pure_white(int IMG_Y, int IMG_X)
 {
-	Mat image(IMG_Y, IMG_X, CV_8UC3, Scalar(255, 255, 255));
+	Mat image(IMG_X, IMG_Y, CV_8UC3, Scalar(255, 255, 255));
 	rectangle(image, Point(0, 0), Point(IMG_X, IMG_Y), Scalar(255, 255, 255), FILLED, LINE_8);
 	return image;
 }
