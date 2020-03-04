@@ -5,6 +5,8 @@
 #include <algorithm>
 #include <opencv2/opencv.hpp>
 
+//#define DEBUG
+
 class Code_base
 {
 protected:

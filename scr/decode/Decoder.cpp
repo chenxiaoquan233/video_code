@@ -10,6 +10,12 @@ Decoder::~Decoder()
 
 int Decoder::decode(char* _input_video_path, char* _output_text_path)
 {
+#ifdef DEBUG
+	bin_text = new bool[MAX_BIN_PER_IMAGE];
+	png_to_bin(3);
+	bin_to_text(_output_text_path);
+	delete bin_text;
+#else
 	int png_num = mp4_to_png(_input_video_path, 3);
 	for (int i = 0; i < png_num; ++i)
 	{
@@ -18,6 +24,7 @@ int Decoder::decode(char* _input_video_path, char* _output_text_path)
 		bin_to_text(_output_text_path);
 		delete bin_text;
 	}
+#endif
 	return 0;
 }
 
@@ -502,15 +509,27 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 	Mat srcGray;
 	int cols = srcImg.cols;
 	int rows = srcImg.rows;
-	//resize(srcImg, srcImg, Size(1280,720));
 
 	vector<vector<Point>> contour2;
 
 	cvtColor(srcImg, srcGray, COLOR_BGR2GRAY);
-	blur(srcGray, srcGray, Size(3, 3));
-	equalizeHist(srcGray, srcGray);
+	//blur(srcGray, srcGray, Size(5, 5));
 
-	threshold(srcGray, srcGray, 20, 255, THRESH_BINARY | THRESH_OTSU);
+#ifdef DEBUG
+	imwrite("blur.png", srcGray);
+#endif
+
+	//equalizeHist(srcGray, srcGray);
+
+#ifdef DEBUG
+	imwrite("equalizeHist.png", srcGray);
+#endif
+
+	threshold(srcGray, srcGray, 188, 255, THRESH_BINARY | THRESH_OTSU);
+
+#ifdef DEBUG
+	imwrite("threshold.png", srcGray);
+#endif
 
 	findContours(srcGray, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 	
@@ -560,13 +579,19 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 			{
 				Point2f points[4];
 				rect.points(points);
-				/*for (int i = 0; i < 4; i++)
-					line(srcImg, points[i], points[(i + 1) % 4], Scalar(0, 255, 255), 5);*/
+#ifdef DEBUG
+				for (int i = 0; i < 4; i++)
+					line(srcImg, points[i], points[(i + 1) % 4], Scalar(0, 255, 255), 5);
+#endif	
 				qr_center.push_back(rect.center);
 				qrPoint.push_back(contour2[i]);
 			}
 		}
 	}
+
+#ifdef DEBUG
+	imwrite("Anchors.png", srcImg);
+#endif
 
 	for (int i = 0; i < qrPoint.size(); i++)
 	{
@@ -577,10 +602,14 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 		for (int j = 0; j < 4; j++)
 		{
 			qrPoint[i].push_back(boxpoint[j]);
-			line(srcImg, boxpoint[i], boxpoint[(i + 1) % 4], Scalar(0, 0, 255), 3);
+#ifdef DEBUG
+			line(srcImg, boxpoint[j], boxpoint[(j + 1) % 4], Scalar(0, 0, 255), 3);
+#endif
 		}
 	}
+#ifdef DEBUG
 	imwrite("box.png", srcImg);
+#endif
 	Mat output;
 
 	if (qr_center.size() == 4)
@@ -588,7 +617,6 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 		anchor_sequence(qr_center);
 		for (int i = 0; i < qr_center.size(); ++i)
 			src_center.push_back(qr_center[i]);
-		//src_center.push_back(Point2f(qr_center[2].x + (qr_center[0].x - qr_center[1].x), qr_center[0].y + (qr_center[2].y - qr_center[1].y)));
 		for (int i = 0; i < src_center.size(); ++i)
 			line(srcImg, src_center[i], src_center[(i + 1) % 4], Scalar(0, 255, 255), 5);
 		imwrite("centers.png", srcImg);
@@ -599,7 +627,9 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 		origin_center.push_back(Point2f(cols * 1207. / 1280, rows * 647. / 720));
 		Mat warp_mat = getPerspectiveTransform(src_center, origin_center);
 		warpPerspective(srcGray, output, warp_mat, srcImg.size());
-		imwrite("test.png", output);
+#ifdef DEBUG
+		imwrite("final.png", output);
+#endif
 		recog_Qr(output);
 	}
 	return 0;
@@ -610,7 +640,11 @@ void Decoder::png_to_bin(int num)
 	Mat image;
 	vector<vector<Point>> QrPoint;
 	char png_name[64];
-	sprintf(png_name, "../example/decode/pngs/%d.png",num);
+#ifdef DEBUG
+	sprintf(png_name, "../example/decode/pngs/%d.png", num);
+#else
+	sprintf(png_name, "%s%d.png",png_path,num);
+#endif
 	image = imread(png_name);
 	find_Qr_anchor(image, QrPoint);
 }
@@ -635,10 +669,19 @@ int Decoder::bin_to_text(char* _output_file_path)
 			text[2 * i] += (tmp_code & (1 << j)) >> 8;
 		for (int j = 0; j < 8; j++)
 			text[2 * i + 1] += tmp_code & (1 << j);
+#ifndef DEBUG
 		fwrite(text + (2 * i), 1, 1, output_file);
 		fwrite(text + (2 * i + 1), 1, 1, output_file);
+#else
+		putchar(text[2 * i]);
+		putchar(text[2 * i + 1]);
+#endif
 	}
 	fclose(output_file);
+#ifdef DEBUG
+	putchar('\n');
+	putchar('\n');
+#endif
 	return char_sum;
 }
 
