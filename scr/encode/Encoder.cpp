@@ -40,8 +40,7 @@ int Encoder::text_to_bin(char* _input_file_name)
 	char* text_tmp = new char[bit_message_len / 8];
 	memset(text_tmp, 0, bit_message_len / 8 * sizeof(char));
 
-	text_tmp[0] = 0;
-	int res = fread(text_tmp + 1, 1, hex_len * 2 - 1, input_file);
+	int res = fread(text_tmp, 1, hex_len * 2, input_file);
 
 	hex = new unsigned int[res / 2];
 	for (int i = 0; i < res; ++i)
