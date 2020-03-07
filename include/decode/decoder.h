@@ -13,6 +13,8 @@ private:
 	const char* png_path = nullptr;
 	char* text = nullptr;
 	unsigned int CheckMatrix[26][2];
+	bool is_text;
+	int real_text_len;
 public:
 	Decoder(const char* _png_path);
 	~Decoder();
@@ -31,4 +33,7 @@ public:
 	unsigned int GetFEC(unsigned int CX);
 	unsigned int CorrectError(unsigned int code);
 	void CreateCheckMatrix();
+	void enter_text();
+	bool check_text_state();
+	void num_or_text(char ch, FILE* output_file);
 };

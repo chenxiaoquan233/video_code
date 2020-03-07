@@ -34,11 +34,12 @@ bool Decoder::mp4_to_png(VideoCapture& capture, int fpp, Mat& frame)
 	int frame_height = (int)capture.get(CAP_PROP_FRAME_HEIGHT);
 	float frame_fps = capture.get(CAP_PROP_FPS);
 	int frame_number = capture.get(CAP_PROP_FRAME_COUNT);//总帧数
+#ifdef DEBUG
 	cout << "frame_width is " << frame_width << endl;
 	cout << "frame_height is " << frame_height << endl;
 	cout << "frame_fps is " << frame_fps << endl;
 	cout << "frame_number is " << frame_number << endl;
-
+#endif
 	int frame_space = fpp * frame_fps / 30 + 0.5; //每两张不同图片之间的间隔 
 	if (fpp == 1)
 		if (capture.read(frame)) return true;
@@ -611,7 +612,6 @@ bool Decoder::png_to_bin(Mat frame)
 
 int Decoder::bin_to_text(char* _output_file_path)
 {
-	puts("parsing\n");
 	FILE* output_file = fopen(_output_file_path, "a");
 	int char_sum = MAX_BIN_PER_IMAGE / 26 * 2;
 	text = new char[char_sum];
