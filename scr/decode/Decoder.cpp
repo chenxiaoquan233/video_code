@@ -2,6 +2,8 @@
 
 Decoder::Decoder(const char* _png_path):png_path(_png_path)
 {
+	is_text = false;
+	real_text_len = 0;
 }
 
 Decoder::~Decoder()
@@ -10,12 +12,6 @@ Decoder::~Decoder()
 
 int Decoder::decode(char* _input_video_path, char* _output_text_path)
 {
-#ifdef DEBUG
-	bin_text = new bool[MAX_BIN_PER_IMAGE];
-	png_to_bin(3);
-	bin_to_text(_output_text_path);
-	delete bin_text;
-#else
 	VideoCapture capture(_input_video_path);
 	Mat frame;
 	int fpp = 1;
@@ -27,16 +23,8 @@ int Decoder::decode(char* _input_video_path, char* _output_text_path)
 		if (!png_to_bin(frame)) { delete bin_text;continue; }
 		else if (!start) { mp4_to_png(capture, fpp, frame);fpp = 3; start = true; }  //在第一检测到定位块以后，再往后调一帧，开始读取图片
 		bin_to_text(_output_text_path);
-		/*
-		char image_name[32];
-		sprintf(image_name, "%s%d.png", png_path, i); //输出测试图片
-		imwrite(image_name, frame);
-		i++; 
-		*/
 		delete bin_text;
 	}
-	return 0;
-#endif
 	return 0;
 }
 
@@ -522,21 +510,9 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 	cvtColor(srcImg, srcGray, COLOR_BGR2GRAY);
 	//blur(srcGray, srcGray, Size(5, 5));
 
-#ifdef DEBUG
-	imwrite("blur.png", srcGray);
-#endif
-
 	//equalizeHist(srcGray, srcGray);
 
-#ifdef DEBUG
-	imwrite("equalizeHist.png", srcGray);
-#endif
-
 	threshold(srcGray, srcGray, 188, 255, THRESH_BINARY | THRESH_OTSU);
-
-#ifdef DEBUG
-	imwrite("threshold.png", srcGray);
-#endif
 
 	findContours(srcGray, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
 	
@@ -579,26 +555,15 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 		if (rate > 0.85)
 		{
 			Mat image = transformCorner(srcImg, rect);
-			char tmp_name[20];
-			sprintf(tmp_name, "cor%d.png", i);
-			imwrite(tmp_name, image);
 			if (isCorner(image))
 			{
 				Point2f points[4];
 				rect.points(points);
-#ifdef DEBUG
-				for (int i = 0; i < 4; i++)
-					line(srcImg, points[i], points[(i + 1) % 4], Scalar(0, 255, 255), 5);
-#endif	
 				qr_center.push_back(rect.center);
 				qrPoint.push_back(contour2[i]);
 			}
 		}
 	}
-
-#ifdef DEBUG
-	imwrite("Anchors.png", srcImg);
-#endif
 
 	for (int i = 0; i < qrPoint.size(); i++)
 	{
@@ -609,14 +574,8 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 		for (int j = 0; j < 4; j++)
 		{
 			qrPoint[i].push_back(boxpoint[j]);
-#ifdef DEBUG
-			line(srcImg, boxpoint[j], boxpoint[(j + 1) % 4], Scalar(0, 0, 255), 3);
-#endif
 		}
 	}
-#ifdef DEBUG
-	imwrite("box.png", srcImg);
-#endif
 	Mat output;
 
 	if (qr_center.size() == 4)
@@ -624,9 +583,6 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 		anchor_sequence(qr_center);
 		for (int i = 0; i < qr_center.size(); ++i)
 			src_center.push_back(qr_center[i]);
-		for (int i = 0; i < src_center.size(); ++i)
-			line(srcImg, src_center[i], src_center[(i + 1) % 4], Scalar(0, 255, 255), 5);
-		imwrite("centers.png", srcImg);
 		vector<Point2f> origin_center;
 		origin_center.push_back(Point2f(cols * 73. / 1280, rows * 647. / 720));
 		origin_center.push_back(Point2f(cols * 73. / 1280, rows * 73. / 720));
@@ -634,9 +590,6 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 		origin_center.push_back(Point2f(cols * 1207. / 1280, rows * 647. / 720));
 		Mat warp_mat = getPerspectiveTransform(src_center, origin_center);
 		warpPerspective(srcGray, output, warp_mat, srcImg.size());
-#ifdef DEBUG
-		imwrite("final.png", output);
-#endif
 		recog_Qr(output);
 		return 0;
 	}
@@ -648,21 +601,17 @@ bool Decoder::png_to_bin(Mat frame)
 	Mat image;
 	vector<vector<Point>> QrPoint;
 	char png_name[64];
-#ifdef DEBUG
-	{sprintf(png_name, "../example/decode/pngs/%d.png", num);
-	image = imread(png_name);
-}
-#else
 	image = frame;
-#endif
 	
 	if (find_Qr_anchor(image, QrPoint) == -1)
 		return false;
-	find_Qr_anchor(image, QrPoint);
+	return true;
+	//find_Qr_anchor(image, QrPoint);
 }
 
 int Decoder::bin_to_text(char* _output_file_path)
 {
+	puts("parsing\n");
 	FILE* output_file = fopen(_output_file_path, "a");
 	int char_sum = MAX_BIN_PER_IMAGE / 26 * 2;
 	text = new char[char_sum];
@@ -681,10 +630,10 @@ int Decoder::bin_to_text(char* _output_file_path)
 			text[2 * i] += (tmp_code & (1 << j)) >> 8;
 		for (int j = 0; j < 8; j++)
 			text[2 * i + 1] += tmp_code & (1 << j);
-#ifndef DEBUG
-		fwrite(text + (2 * i), 1, 1, output_file);
-		fwrite(text + (2 * i + 1), 1, 1, output_file);
-#else
+
+		num_or_text(text[2 * i], output_file);
+		num_or_text(text[2 * i + 1], output_file);
+#ifdef DEBUG
 		putchar(text[2 * i]);
 		putchar(text[2 * i + 1]);
 #endif
@@ -770,4 +719,39 @@ unsigned int Decoder::CorrectError(unsigned int code) {
 		}
 	}
 	return decode >> 10;
+}
+
+void Decoder::enter_text()
+{
+	is_text = true;
+}
+
+bool Decoder::check_text_state()
+{
+	return is_text;
+}
+
+void Decoder::num_or_text(char ch, FILE* output_file)
+{
+	if (!check_text_state())
+	{
+		if (ch != '@')
+		{
+			real_text_len *= 10;
+			real_text_len += (ch - '0');
+		}
+		else
+		{
+			enter_text();
+		}
+	}
+	else
+	{
+		
+		if (real_text_len > 0)
+		{
+			fwrite(&ch, 1, 1, output_file);
+			real_text_len--;
+		}
+	}
 }
