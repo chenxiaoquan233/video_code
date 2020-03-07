@@ -182,7 +182,6 @@ int Encoder::filesize(char* _input_file_name)
 	int length = 0;
 	FILE* fp;
 	fopen_s(&fp, _input_file_name, "rb");
-	fprintf(fp, "This is a test");
 	if (fp == NULL)
 	{
 		return -1;
