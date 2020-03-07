@@ -41,7 +41,6 @@ int Encoder::text_to_bin(char* _input_file_name)
 	memset(text_tmp, 0, bit_message_len / 8 * sizeof(char));
 
 	int res = fread(text_tmp, 1, hex_len * 2, input_file);
-
 	hex = new unsigned int[res / 2];
 	for (int i = 0; i < res; ++i)
 	{
@@ -177,4 +176,19 @@ Mat Encoder::pure_white(int IMG_Y, int IMG_X)
 	Mat image(IMG_X, IMG_Y, CV_8UC3, Scalar(255, 255, 255));
 	rectangle(image, Point(0, 0), Point(IMG_X, IMG_Y), Scalar(255, 255, 255), FILLED, LINE_8);
 	return image;
+}
+int Encoder::filesize(char* _input_file_name)
+{
+	int length = 0;
+	FILE* fp;
+	fopen_s(&fp, _input_file_name, "rb");
+	if (fp == NULL)
+	{
+		return -1;
+	}
+	fseek(fp, 0L, SEEK_END);
+	length = ftell(fp);
+	fclose(fp);
+	return length;
+
 }
