@@ -39,8 +39,24 @@ int Encoder::text_to_bin(char* _input_file_name)
 	bin_text = new bool[MAX_BIN_PER_IMAGE];
 	char* text_tmp = new char[bit_message_len / 8];
 	memset(text_tmp, 0, bit_message_len / 8 * sizeof(char));
+	int res;
 
-	int res = fread(text_tmp, 1, hex_len * 2, input_file);
+	if (isfirstpng == true)
+	{
+		int len_of_text = filesize(_input_file_name);		//获取长度
+		char start = 64;									//符号@
+		char* len_text = new char[bit_message_len / 8];
+		sprintf(len_text, "%d%c", len_of_text, start);		//将“长度@”加入数组
+		res = fread(text_tmp, 1, hex_len * 2 - strlen(len_text), input_file);
+		res += strlen(len_text);
+		text_tmp = strcat(len_text, text_tmp);				//将“长度@”添加到正文前面
+		isfirstpng = false;
+	}
+	else
+	{
+		res = fread(text_tmp, 1, hex_len * 2, input_file);
+	}
+	
 	hex = new unsigned int[res / 2];
 	for (int i = 0; i < res; ++i)
 	{

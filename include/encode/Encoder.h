@@ -14,6 +14,7 @@ private:
 	int fps = 30;
 	unsigned int* hex = nullptr;
 	bool* bin_text = nullptr;
+	bool isfirstpng = true;
 public:
 	Encoder(const char* _png_path);
 	~Encoder();
