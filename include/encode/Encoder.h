@@ -25,4 +25,5 @@ public:
 	unsigned int getFEC(unsigned int CX);
 	void draw_anchors(Mat& img);
 	Mat pure_white(int IMG_Y, int IMG_X);
+	int filesize(char* _input_file_name);
 };
