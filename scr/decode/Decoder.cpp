@@ -16,21 +16,32 @@ int Decoder::decode(char* _input_video_path, char* _output_text_path)
 	bin_to_text(_output_text_path);
 	delete bin_text;
 #else
-	int png_num = mp4_to_png(_input_video_path, 3);
-	for (int i = 0; i < png_num; ++i)
+	VideoCapture capture(_input_video_path);
+	Mat frame;
+	int fpp = 1;
+	bool start = false;
+	int i = 0;
+	while (mp4_to_png(capture, fpp, frame))
 	{
 		bin_text = new bool[MAX_BIN_PER_IMAGE];
-		png_to_bin(i);
+		if (!png_to_bin(frame)) { delete bin_text;continue; }
+		else if (!start) { mp4_to_png(capture, fpp, frame);fpp = 3; start = true; }  //在第一检测到定位块以后，再往后调一帧，开始读取图片
 		bin_to_text(_output_text_path);
+		/*
+		char image_name[32];
+		sprintf(image_name, "%s%d.png", png_path, i); //输出测试图片
+		imwrite(image_name, frame);
+		i++; 
+		*/
 		delete bin_text;
 	}
+	return 0;
 #endif
 	return 0;
 }
 
-int Decoder::mp4_to_png(char* _video_path, int fpp)
+bool Decoder::mp4_to_png(VideoCapture& capture, int fpp, Mat& frame)
 {
-	VideoCapture capture(_video_path);
 	int frame_width = (int)capture.get(CAP_PROP_FRAME_WIDTH);
 	int frame_height = (int)capture.get(CAP_PROP_FRAME_HEIGHT);
 	float frame_fps = capture.get(CAP_PROP_FPS);
@@ -39,20 +50,16 @@ int Decoder::mp4_to_png(char* _video_path, int fpp)
 	cout << "frame_height is " << frame_height << endl;
 	cout << "frame_fps is " << frame_fps << endl;
 	cout << "frame_number is " << frame_number << endl;
-	int png_num = 0;//统计生成图片的数量
-	float frame_space = fpp * frame_fps / 30; //每两张不同图片之间的间隔
-	Mat frame;
-	for (int i = 0; capture.read(frame); i++)
+
+	int frame_space = fpp * frame_fps / 30 + 0.5; //每两张不同图片之间的间隔 
+	if (fpp == 1)
+		if (capture.read(frame)) return true;
+		else return false;
+	for (int i = 0;i < frame_space;i++)
 	{
-		if (i == (int)(png_num * frame_space))
-		{
-			char image_name[32];
-			sprintf(image_name, "%s%d.png", png_path, png_num);
-			imwrite(image_name, frame);
-			png_num++;
-		}
+		if (!capture.read(frame)) return false;
 	}
-	return png_num;
+	return true;
 }
 
 int Decoder::recog_Qr(Mat& image1)
@@ -621,9 +628,9 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 			line(srcImg, src_center[i], src_center[(i + 1) % 4], Scalar(0, 255, 255), 5);
 		imwrite("centers.png", srcImg);
 		vector<Point2f> origin_center;
-		origin_center.push_back(Point2f(cols *   73. / 1280, rows * 647. / 720));
-		origin_center.push_back(Point2f(cols *   73. / 1280, rows *  73. / 720));
-		origin_center.push_back(Point2f(cols * 1207. / 1280, rows *  73. / 720));
+		origin_center.push_back(Point2f(cols * 73. / 1280, rows * 647. / 720));
+		origin_center.push_back(Point2f(cols * 73. / 1280, rows * 73. / 720));
+		origin_center.push_back(Point2f(cols * 1207. / 1280, rows * 73. / 720));
 		origin_center.push_back(Point2f(cols * 1207. / 1280, rows * 647. / 720));
 		Mat warp_mat = getPerspectiveTransform(src_center, origin_center);
 		warpPerspective(srcGray, output, warp_mat, srcImg.size());
@@ -631,21 +638,26 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 		imwrite("final.png", output);
 #endif
 		recog_Qr(output);
+		return 0;
 	}
-	return 0;
+	else return -1;
 }
 
-void Decoder::png_to_bin(int num)
+bool Decoder::png_to_bin(Mat frame)
 {
 	Mat image;
 	vector<vector<Point>> QrPoint;
 	char png_name[64];
 #ifdef DEBUG
-	sprintf(png_name, "../example/decode/pngs/%d.png", num);
-#else
-	sprintf(png_name, "%s%d.png",png_path,num);
-#endif
+	{sprintf(png_name, "../example/decode/pngs/%d.png", num);
 	image = imread(png_name);
+}
+#else
+	image = frame;
+#endif
+	
+	if (find_Qr_anchor(image, QrPoint) == -1)
+		return false;
 	find_Qr_anchor(image, QrPoint);
 }
 
