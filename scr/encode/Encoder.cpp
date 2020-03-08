@@ -21,13 +21,20 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 {
 	set_video_length(_video_length);
 	input_file = fopen(_input_file_name, "r");
+	VideoWriter video(_output_file_name, 0x00000021, fps, Size(IMG_Y + 20, IMG_X + 20));
+	Mat image_white = pure_white(IMG_Y + 20, IMG_X + 20);
+	video << image_white;
 	while (!feof(input_file))
 	{
+		Mat frame;
 		int len = text_to_bin(_input_file_name);
-		bin_to_png(bin_text, len * 26);		//图片生成
+		frame=bin_to_png(bin_text, len * 26);		//图片生成
 		png_sum++;
+		resize(frame, frame, Size(IMG_Y + 20, IMG_X + 20));
+		for (int frame_i = 0;frame_i < 3;frame_i++)
+			video << frame;
 	}
-	png_to_mp4(_output_file_name, fps,3, IMG_Y+20, IMG_X+20);
+	video << image_white;
 	return 0;
 }
 
@@ -102,9 +109,9 @@ void Encoder::draw_anchors(Mat& image)
 	rectangle(image, Point(1180 + 10, 620 + 10), Point(1240 + 10, 680 + 10), Scalar(0), FILLED, LINE_8);
 }
 
-void Encoder::bin_to_png(bool* str, int size)
+Mat Encoder::bin_to_png(bool* str, int size)
 {
-	Mat image(IMG_X + 20, IMG_Y + 20, CV_8UC1);
+	Mat image(IMG_X+20,IMG_Y+20,CV_8UC1);
 	rectangle(image, Point(0, 0), Point(IMG_Y + 20, IMG_X + 20), Scalar(255), FILLED, LINE_8);
 
 	draw_anchors(image);
@@ -145,33 +152,12 @@ void Encoder::bin_to_png(bool* str, int size)
 		}
 		
 	}
-	char image_name[32];
+	/*char image_name[32];
 	sprintf(image_name, "%s%d.png", png_path, png_sum);
-	imwrite(image_name, image);
+	imwrite(image_name, image);*/
+	return image;
 }
 
-int Encoder::png_to_mp4(char* video_path, int fps, int fpp, int sizeY, int sizeX)
-{
-	VideoWriter video(video_path, VideoWriter::fourcc('M', 'P', '4', 'V'), fps, Size(sizeY, sizeX));
-	Mat image_white = pure_white(sizeY, sizeX );
-	video << image_white;
-	printf("%d,%d\n", fps, fpp);
-	for (int i = 0; i < png_sum; i++)
-	{
-		char png_pos[32];
-		sprintf(png_pos, "%s%d.png", png_path, i);
-		Mat image = imread(png_pos);
-		if (!image.empty())
-		{
-			resize(image, image, Size(sizeY, sizeX));
-			for (int fpp_num = 0; fpp_num < fpp; fpp_num++)
-				video << image;
-		}
-	}
-	video << image_white;
-	puts("Processed\n");
-	return 0;
-}
 
 unsigned int Encoder::getFEC(unsigned int CX)
 {
