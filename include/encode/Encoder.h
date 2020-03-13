@@ -26,7 +26,5 @@ public:
 	void draw_anchors(Mat& img);
 	Mat pure_white(int IMG_Y, int IMG_X);
 	int filesize(char* _input_file_name);
-	char* getinfn();
-	char* getoufn();
-	char* getlen();
+	void Parametercheck(char* _input_file, char* _output_file, char* _video_length);
 };
