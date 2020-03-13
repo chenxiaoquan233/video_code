@@ -196,3 +196,58 @@ int Encoder::filesize(char* _input_file_name)
 	return length;
 
 }
+char* Encoder::getinfn()
+{
+	char* infn = new char[100];
+	do
+	{
+		std::cout << "Please enter the input file name(with path):";
+		std::cin >> infn;
+		FILE* fp;
+		fp = fopen(infn, "rb");
+		if ((fp == NULL))
+		{
+			std::cout << "error on open file!" << std::endl;
+		}
+		else
+		{
+			fclose(fp);
+			return infn;
+		}
+	} while (1);
+	
+}
+char* Encoder::getoufn()
+{
+	char* oufn = new char[100];
+	do
+	{
+		std::cout << "Please enter the output file name(with path):";
+		std::cin >> oufn;
+		if (oufn[strlen(oufn) - 4] == '.' && (oufn[strlen(oufn) - 3] == 'm' || oufn[strlen(oufn) - 3] == 'M') && (oufn[strlen(oufn) - 2] == 'p' || oufn[strlen(oufn) - 3] == 'P') && oufn[strlen(oufn) - 1] == '4')
+		{
+			return oufn;
+		}
+		else
+		{
+			std::cout << "Wrong file format!" << std::endl;
+		}
+	} while (1);
+}
+char* Encoder::getlen()
+{
+	char* len = new char[100];
+	int lenth;
+	do
+	{
+		std::cout << "Please enter the vedio lenth:";
+		std::cin >> lenth;
+		if (lenth > 180) break;
+		else
+		{
+			std::cout << "Too short! Please try again!" << std::endl;
+		}
+	} while (1);
+	sprintf(len, "%d", lenth);
+	return len;
+}
