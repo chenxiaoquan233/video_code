@@ -755,3 +755,44 @@ void Decoder::num_or_text(char ch, FILE* output_file)
 		}
 	}
 }
+char* Decoder::getoutfile()
+{
+	char* output = new char[100];
+	cout << "Please enter the output file name(with path):";
+	cin >> output;
+	FILE* fp;
+	fopen_s(&fp, output, "rb");
+	if ((fp == NULL))
+	{
+		cout << "error on open file!" << endl;
+	}
+	else
+	{
+		fclose(fp);
+		return output;
+	}
+}
+char* Decoder::getinfile()
+{
+	char* input = new char[100];
+	char* decode = new char[100];
+	cout << "ÊäÈëÖ¸Áî:(decode)";
+	cin >> decode;
+	if (strcmp(decode, "decode"))
+	{
+		cout << "Wrong" << endl;
+	}
+	else
+	{
+		cout << "Please enter the input file name(with path):";
+		cin >> input;
+		if (input[strlen(input) - 1] == '4' && (input[strlen(input) - 2] == 'p' || input[strlen(input) - 2] == 'P') && (input[strlen(input) - 3] == 'm' || input[strlen(input) - 3] == 'M') && input[strlen(input) - 4] == '.')
+		{
+			return input;
+		}
+		else
+		{
+			cout << "error file name" << endl;
+		}
+	}
+}
