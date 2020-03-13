@@ -24,7 +24,8 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 	VideoWriter video(_output_file_name, 0x00000021, fps, Size(IMG_Y + 20, IMG_X + 20));
 	Mat image_white = pure_white(IMG_Y + 20, IMG_X + 20);
 	video << image_white;
-	while (!feof(input_file))
+	int frame_number=1;
+	while (!feof(input_file)&&frame_number<= video_length*30/1000-4)
 	{
 		Mat frame;
 		int len = text_to_bin(_input_file_name);
@@ -33,6 +34,7 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 		resize(frame, frame, Size(IMG_Y + 20, IMG_X + 20));
 		for (int frame_i = 0;frame_i < 3;frame_i++)
 			video << frame;
+		frame_number += 3;
 	}
 	video << image_white;
 	return 0;
