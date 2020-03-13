@@ -772,27 +772,36 @@ char* Decoder::getoutfile()
 		return output;
 	}
 }
-char* Decoder::getinfile()
+char* Decoder::Parameterjudgement(int argc, char* _input_file_name, char* _output_file_name)
 {
-	char* input = new char[100];
-	char* decode = new char[100];
-	cout << "ÊäÈëÖ¸Áî:(decode)";
-	cin >> decode;
-	if (strcmp(decode, "decode"))
+	if (argc != 3)
 	{
-		cout << "Wrong" << endl;
+		cout << "Number of parameters should be 3" << endl;
+		exit(0);
 	}
 	else
 	{
-		cout << "Please enter the input file name(with path):";
-		cin >> input;
-		if (input[strlen(input) - 1] == '4' && (input[strlen(input) - 2] == 'p' || input[strlen(input) - 2] == 'P') && (input[strlen(input) - 3] == 'm' || input[strlen(input) - 3] == 'M') && input[strlen(input) - 4] == '.')
-		{
-			return input;
-		}
-		else
-		{
-			cout << "error file name" << endl;
-		}
+		cout << "The number of parameters is correct" << endl;
+	}
+	if (_input_file_name[strlen(_input_file_name) - 1] == '4' && (_input_file_name[strlen(_input_file_name) - 2] == 'p' || _input_file_name[strlen(_input_file_name) - 2] == 'P') && (_input_file_name[strlen(_input_file_name) - 3] == 'm' || _input_file_name[strlen(_input_file_name) - 3] == 'M') && _input_file_name[strlen(_input_file_name) - 4] == '.')
+	{
+		cout << "input_file is ok" << endl;
+	}
+	else
+	{
+		cout << "error input_file_name" << endl;
+		exit(0);
+	}
+	FILE* fp;
+	fopen_s(&fp, _output_file_name, "rb");
+	if ((fp == NULL))
+	{
+		cout << "error on open file!" << endl;
+		exit(0);
+	}
+	else
+	{
+		fclose(fp);
+		cout << "output_file is ok" << endl;
 	}
 }

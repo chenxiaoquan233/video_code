@@ -36,6 +36,5 @@ public:
 	void enter_text();
 	bool check_text_state();
 	void num_or_text(char ch, FILE* output_file);
-	char* getoutfile();
-	char* getinfile();
+	char* Parameterjudgement(int argc, char* _input_file_name, char* _output_file_name);
 };
