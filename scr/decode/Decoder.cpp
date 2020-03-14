@@ -12,6 +12,7 @@ Decoder::~Decoder()
 
 int Decoder::decode(char* _input_video_path, char* _output_text_path)
 {
+	Parameterjudgement(_input_video_path, _output_text_path);
 	VideoCapture capture(_input_video_path);
 	Mat frame;
 	int fpp = 1;
@@ -755,34 +756,8 @@ void Decoder::num_or_text(char ch, FILE* output_file)
 		}
 	}
 }
-char* Decoder::getoutfile()
+char* Decoder::Parameterjudgement(char* _input_file_name, char* _output_file_name)
 {
-	char* output = new char[100];
-	cout << "Please enter the output file name(with path):";
-	cin >> output;
-	FILE* fp;
-	fopen_s(&fp, output, "rb");
-	if ((fp == NULL))
-	{
-		cout << "error on open file!" << endl;
-	}
-	else
-	{
-		fclose(fp);
-		return output;
-	}
-}
-char* Decoder::Parameterjudgement(int argc, char* _input_file_name, char* _output_file_name)
-{
-	if (argc != 3)
-	{
-		cout << "Number of parameters should be 3" << endl;
-		exit(0);
-	}
-	else
-	{
-		cout << "The number of parameters is correct" << endl;
-	}
 	if (_input_file_name[strlen(_input_file_name) - 1] == '4' && (_input_file_name[strlen(_input_file_name) - 2] == 'p' || _input_file_name[strlen(_input_file_name) - 2] == 'P') && (_input_file_name[strlen(_input_file_name) - 3] == 'm' || _input_file_name[strlen(_input_file_name) - 3] == 'M') && _input_file_name[strlen(_input_file_name) - 4] == '.')
 	{
 		cout << "input_file is ok" << endl;
