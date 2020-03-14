@@ -155,9 +155,9 @@ Mat Encoder::bin_to_png(bool* str, int size)
 		}
 		
 	}
-	/*char image_name[32];
+	char image_name[32];
 	sprintf(image_name, "%s%d.png", png_path, png_sum);
-	imwrite(image_name, image);*/
+	imwrite(image_name, image);
 	return image;
 }
 
