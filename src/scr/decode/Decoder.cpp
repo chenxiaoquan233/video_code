@@ -1,6 +1,6 @@
 #include "../../include/decode/decoder.h"
 
-Decoder::Decoder(const char* _png_path):png_path(_png_path)
+Decoder::Decoder()
 {
 	is_text = false;
 	real_text_len = 0;
@@ -768,15 +768,4 @@ char* Decoder::Parameterjudgement(char* _input_file_name, char* _output_file_nam
 		exit(0);
 	}
 	FILE* fp;
-	fopen_s(&fp, _output_file_name, "rb");
-	if ((fp == NULL))
-	{
-		cout << "error on open file!" << endl;
-		exit(0);
-	}
-	else
-	{
-		fclose(fp);
-		cout << "output_file is ok" << endl;
-	}
 }

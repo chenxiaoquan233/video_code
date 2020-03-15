@@ -16,7 +16,7 @@ private:
 	bool* bin_text = nullptr;
 	bool isfirstpng = true;
 public:
-	Encoder(const char* _png_path);
+	Encoder();
 	~Encoder();
 	void set_video_length(char* _video_length);
 	int encode(char* _input_file, char* _output_file, char* _video_length);
