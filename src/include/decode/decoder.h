@@ -16,7 +16,7 @@ private:
 	bool is_text;
 	int real_text_len;
 public:
-	Decoder(const char* _png_path);
+	Decoder();
 	~Decoder();
 	bool png_to_bin(Mat frame);
 	bool Qr_rate(float rate);

@@ -2,7 +2,7 @@
 
 int main(int argc, char** argv)
 {
-	Encoder* encoder = new Encoder("../example/pngs/encode/");
+	Encoder* encoder = new Encoder();
 	if (argc != 4)
 	{
 		std::cout << "The number of Variable is Wrong" << std::endl;

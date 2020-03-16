@@ -4,7 +4,7 @@ using namespace cv;
 
 int main(int argc, char** argv)
 {
-	Decoder* decoder = new Decoder("../example/decode/pngs/");
+	Decoder* decoder = new Decoder();
 	if (argc != 3)
 	{
 		cout << "Number of parameters should be 3" << endl;

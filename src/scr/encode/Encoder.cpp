@@ -1,6 +1,6 @@
 #include "../../include/encode/Encoder.h"
 
-Encoder::Encoder(const char* _png_path):png_path(_png_path)
+Encoder::Encoder()
 {
 }
 
