@@ -634,16 +634,8 @@ int Decoder::bin_to_text(char* _output_file_path)
 
 		num_or_text(text[2 * i], output_file);
 		num_or_text(text[2 * i + 1], output_file);
-#ifdef DEBUG
-		putchar(text[2 * i]);
-		putchar(text[2 * i + 1]);
-#endif
 	}
 	fclose(output_file);
-#ifdef DEBUG
-	putchar('\n');
-	putchar('\n');
-#endif
 	return char_sum;
 }
 
@@ -756,16 +748,14 @@ void Decoder::num_or_text(char ch, FILE* output_file)
 		}
 	}
 }
+
 char* Decoder::Parameterjudgement(char* _input_file_name, char* _output_file_name)
 {
 	if (_input_file_name[strlen(_input_file_name) - 1] == '4' && (_input_file_name[strlen(_input_file_name) - 2] == 'p' || _input_file_name[strlen(_input_file_name) - 2] == 'P') && (_input_file_name[strlen(_input_file_name) - 3] == 'm' || _input_file_name[strlen(_input_file_name) - 3] == 'M') && _input_file_name[strlen(_input_file_name) - 4] == '.')
-	{
-		cout << "input_file is ok" << endl;
-	}
+	{}
 	else
 	{
 		cout << "error input_file_name" << endl;
 		exit(0);
 	}
-	FILE* fp;
 }
