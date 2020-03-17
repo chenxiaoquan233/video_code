@@ -22,7 +22,7 @@ int Decoder::decode(char* _input_video_path, char* _output_text_path)
 	{
 		bin_text = new bool[MAX_BIN_PER_IMAGE];
 		if (!png_to_bin(frame)) { delete bin_text;continue; }
-		else if (!start) { mp4_to_png(capture, fpp, frame);fpp = 3; start = true; }  //在第一检测到定位块以后，再往后调一帧，开始读取图片
+		else if (!start) { mp4_to_png(capture, fpp, frame);fpp = 3; start = true; }
 		bin_to_text(_output_text_path);
 		delete bin_text;
 	}
@@ -34,14 +34,8 @@ bool Decoder::mp4_to_png(VideoCapture& capture, int fpp, Mat& frame)
 	int frame_width = (int)capture.get(CAP_PROP_FRAME_WIDTH);
 	int frame_height = (int)capture.get(CAP_PROP_FRAME_HEIGHT);
 	float frame_fps = capture.get(CAP_PROP_FPS);
-	int frame_number = capture.get(CAP_PROP_FRAME_COUNT);//总帧数
-#ifdef DEBUG
-	cout << "frame_width is " << frame_width << endl;
-	cout << "frame_height is " << frame_height << endl;
-	cout << "frame_fps is " << frame_fps << endl;
-	cout << "frame_number is " << frame_number << endl;
-#endif
-	int frame_space = fpp * frame_fps / 30 + 0.5; //每两张不同图片之间的间隔 
+	int frame_number = capture.get(CAP_PROP_FRAME_COUNT);
+	int frame_space = fpp * frame_fps / 30 + 0.5;
 	if (fpp == 1)
 		if (capture.read(frame)) return true;
 		else return false;
@@ -63,8 +57,8 @@ int Decoder::recog_Qr(Mat& image1)
 		for (int q = 0; q < IMG_Y / BLOCK_WIDTH - 2 * ANCHOR_BASE_BLOCKS / BLOCK_SIZE; q++)
 		{
 			uchar color = image.at<uchar>(Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q + BLOCK_WIDTH / 2, 0 + BLOCK_WIDTH * p + BLOCK_WIDTH / 2));
-			if (color < 128) bin_text[count++] = false;// putchar('0');
-			else bin_text[count++] = true;// putchar('1');
+			if (color < 128) bin_text[count++] = false;
+			else bin_text[count++] = true;
 		}
 	}
 	for (int p = 0; p < IMG_X / BLOCK_WIDTH - 2 * ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
@@ -72,8 +66,8 @@ int Decoder::recog_Qr(Mat& image1)
 		for (int q = 0; q < IMG_Y / BLOCK_WIDTH; q++)
 		{
 			uchar color = image.at<uchar>(Point(0 + BLOCK_WIDTH * q + BLOCK_WIDTH / 2, BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p + BLOCK_WIDTH / 2));
-			if (color < 128) bin_text[count++] = false;// , putchar('0');
-			else bin_text[count++] = true;// , putchar('1');
+			if (color < 128) bin_text[count++] = false;
+			else bin_text[count++] = true;
 		}
 	}
 	for (int p = 0; p < ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
@@ -81,68 +75,18 @@ int Decoder::recog_Qr(Mat& image1)
 		for (int q = 0; q < IMG_Y / BLOCK_WIDTH -2 * ANCHOR_BASE_BLOCKS / BLOCK_SIZE; q++)
 		{
 			uchar color = image.at<uchar>(Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q + BLOCK_WIDTH / 2, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p + BLOCK_WIDTH / 2));
-			if (color < 128) bin_text[count++] = false;// , putchar('0');
-			else bin_text[count++] = true;// , putchar('1');
+			if (color < 128) bin_text[count++] = false;
+			else bin_text[count++] = true;
 		}
 	}
-	/*第二版3-6区块，留查
-	for (int p = 0; p < ANCHOR_BASE_BLOCKS / BLOCK_SIZE-MINI_ANCHOR_BASE_BLOCKS/BLOCK_SIZE-BOTTOM_BASE_BLOCKS/BLOCK_SIZE; p++)
-	{
-		for (int q = 0; q < IMG_Y / BLOCK_WIDTH - ANCHOR_BASE_BLOCKS / BLOCK_SIZE; q++)
-		{
-			uchar color = image.at<uchar>(Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q + BLOCK_WIDTH / 2, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p + BLOCK_WIDTH / 2));
-			if (color < 128) bin_text[count++] = false;// , putchar('0');
-			else bin_text[count++] = true;// , putchar('1');
-		}
-	}
-	for (int p = 0; p < MINI_ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
-	{
-		for (int q = 0; q < IMG_Y / BLOCK_WIDTH - ANCHOR_BASE_BLOCKS / BLOCK_SIZE - MINI_ANCHOR_BASE_BLOCKS/BLOCK_SIZE - BOTTOM_BASE_BLOCKS/BLOCK_SIZE; q++)
-		{
-			uchar color = image.at<uchar>(Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q + BLOCK_WIDTH / 2, IMG_X - BASE_BLOCK_WIDTH * BOTTOM_BASE_BLOCKS-BASE_BLOCK_WIDTH * MINI_ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p + BLOCK_WIDTH / 2));
-			if (color < 128) bin_text[count++] = false;// , putchar('0');
-			else bin_text[count++] = true;// , putchar('1');
-		}
-	}
-	for (int p = 0; p < MINI_ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
-	{
-		for (int q = 0; q < BOTTOM_BASE_BLOCKS / BLOCK_SIZE; q++)
-		{
-			uchar color = image.at<uchar>(Point(IMG_Y - BASE_BLOCK_WIDTH * BOTTOM_BASE_BLOCKS + BLOCK_WIDTH * q + BLOCK_WIDTH / 2, IMG_X - BASE_BLOCK_WIDTH * BOTTOM_BASE_BLOCKS - BASE_BLOCK_WIDTH * MINI_ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p + BLOCK_WIDTH / 2));
-			if (color < 128) bin_text[count++] = false;// , putchar('0');
-			else bin_text[count++] = true;// , putchar('1');
-		}
-	}
-	for (int p = 0; p < BOTTOM_BASE_BLOCKS / BLOCK_SIZE; p++)
-	{
-		for (int q = 0; q < IMG_Y / BLOCK_WIDTH - ANCHOR_BASE_BLOCKS / BLOCK_SIZE; q++)
-		{
-			uchar color = image.at<uchar>(Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q + BLOCK_WIDTH / 2, IMG_X - BASE_BLOCK_WIDTH * BOTTOM_BASE_BLOCKS + BLOCK_WIDTH * p + BLOCK_WIDTH / 2));
-			if (color < 128) bin_text[count++] = false;// , putchar('0');
-			else bin_text[count++] = true;// , putchar('1');
-		}
-	}
-	*/
-	/*第一版第三区块，留查
-	for (int p = 0; p < ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
-	{
-		for (int q = 0; q < IMG_Y / BLOCK_WIDTH - ANCHOR_BASE_BLOCKS / BLOCK_SIZE; q++)
-		{
-			uchar color = image.at<uchar>(Point(BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * q + BLOCK_WIDTH / 2, IMG_X - BASE_BLOCK_WIDTH * ANCHOR_BASE_BLOCKS + BLOCK_WIDTH * p + BLOCK_WIDTH / 2));
-			if (color < 128) bin_text[count++] = false;// , putchar('0');
-			else bin_text[count++] = true;// , putchar('1');
-		}
-	}
-	*/
 	return count;
 }
 
 bool Decoder::Qr_rate(float rate)
 {
-	//大概比例 不能太严格
 	return rate > 0.3 && rate < 1.9;
 }
-//横向黑白比例判断
+
 bool Decoder::Qr_color_rate_X(cv::Mat& image, int flag)
 {
 	int nr = image.rows / 2;
@@ -184,7 +128,6 @@ bool Decoder::Qr_color_rate_X(cv::Mat& image, int flag)
 	if (vValueCount.size() < 5 || vValueCount.size() > 7)
 		return false;
 
-	//横向黑白比例1:1:3:1:1
 	int index = -1;
 	int maxCount = -1;
 	for (int i = 0; i < vValueCount.size(); i++)
@@ -204,13 +147,11 @@ bool Decoder::Qr_color_rate_X(cv::Mat& image, int flag)
 		}
 	}
 
-	//左边 右边 都有两个值，才行
 	if (index < 2)
 		return false;
 	if ((vValueCount.size() - index) < 3)
 		return false;
 
-	//黑白比例1:1:3:1:1
 	float rate = ((float)maxCount) / 3.00;
 
 	if (!Qr_rate(vValueCount[index - 2] / rate))
@@ -224,7 +165,7 @@ bool Decoder::Qr_color_rate_X(cv::Mat& image, int flag)
 
 	return true;
 }
-//纵向黑白比例判断
+
 bool Decoder::Qr_color_rate_Y(cv::Mat& image, int flag) {
 	int nc = image.cols / 2;
 	int nr = image.rows;
@@ -265,7 +206,6 @@ bool Decoder::Qr_color_rate_Y(cv::Mat& image, int flag) {
 	if (vValueCount.size() < 5 || vValueCount.size() > 7)
 		return false;
 
-	//横向黑白比例1:1:3:1:1
 	int index = -1;
 	int maxCount = -1;
 	for (int i = 0; i < vValueCount.size(); i++)
@@ -285,13 +225,11 @@ bool Decoder::Qr_color_rate_Y(cv::Mat& image, int flag) {
 		}
 	}
 
-	//左边 右边 都有两个值，才行
 	if (index < 2)
 		return false;
 	if ((vValueCount.size() - index) < 3)
 		return false;
 
-	//黑白比例1:1:3:1:1
 	float rate = ((float)maxCount) / 3.00;
 
 	if (!Qr_rate(vValueCount[index - 2] / rate))
@@ -305,14 +243,14 @@ bool Decoder::Qr_color_rate_Y(cv::Mat& image, int flag) {
 
 	return true;
 }
-//黑白比例判断
+
 bool Decoder::IsQrColorRate(cv::Mat& image, int flag)
 {
 	if (!Qr_color_rate_X(image, flag))
 		return false;
 	return Qr_color_rate_Y(image, flag);;
 }
-//二维码定位角区域切割
+
 Mat Decoder::crop_image(Mat& img, RotatedRect& rotatedRect) {
 	Point2f points[4];
 	rotatedRect.points(points);
@@ -360,17 +298,16 @@ Mat Decoder::crop_image(Mat& img, RotatedRect& rotatedRect) {
 		return ret;
 	}
 }
-//定位角
+
 bool Decoder::Qr_point(vector<Point>& contour, Mat& img, int i)
 {
-	//最小大小限定
 	RotatedRect rotated_rect = minAreaRect(contour);
 	if (rotated_rect.size.height < 40  || rotated_rect.size.width < 40)
 		return false;
-	//将二维码从整个图上抠出来
+
 	cv::Mat cropImg = crop_image(img, rotated_rect);
 	int flag = i++;
-	//横向黑白比例1:1:3:1:1
+
 	bool result = IsQrColorRate(cropImg, flag);
 	return result;
 }
@@ -442,10 +379,9 @@ bool isCorner(Mat& image)
 		{
 			Rect rect = boundingRect(Mat(contours[i]));
 			rectangle(image, rect, Scalar(0, 0, 255), 2);
-			/******************由图可知最里面的矩形宽度占总宽的3/7***********************/
-			if (rect.width < mask.cols * 2 / 7)      //2/7是为了防止一些微小的仿射
+			if (rect.width < mask.cols * 2 / 7)
 				continue;
-			if (Ratete(dstGray(rect)) > 0.75)       //0.75是我测试几张图片的经验值 可根据情况设置(测试数量并不多)
+			if (Ratete(dstGray(rect)) > 0.75)
 			{
 				rectangle(mask, rect, Scalar(0, 0, 255), 2);
 				return true;
@@ -477,28 +413,8 @@ void anchor_sequence(vector<Point2f>& anchor_center)
 	anchor_center.push_back(tmp_center[0]);
 	anchor_center.push_back(tmp_center[2]);
 	anchor_center.push_back(tmp_center[3]);
-
-/*	Point2f tmp_center[3];
-	double a0, a1, a2;
-	a0 = abs((anchor_center[1].x - anchor_center[0].x) * (anchor_center[2].x - anchor_center[0].x) + (anchor_center[1].y - anchor_center[0].y) * (anchor_center[2].y - anchor_center[0].y));
-	a1 = abs((anchor_center[0].x - anchor_center[1].x) * (anchor_center[2].x - anchor_center[1].x) + (anchor_center[0].y - anchor_center[1].y) * (anchor_center[2].y - anchor_center[1].y));
-	a2 = abs((anchor_center[1].x - anchor_center[2].x) * (anchor_center[0].x - anchor_center[2].x) + (anchor_center[1].y - anchor_center[2].y) * (anchor_center[0].y - anchor_center[2].y));
-	if (a0 <= a1 && a0 <= a2) tmp_center[1] = anchor_center[0], anchor_center.erase(anchor_center.begin() + 0);
-	if (a1 <= a0 && a1 <= a2) tmp_center[1] = anchor_center[1], anchor_center.erase(anchor_center.begin() + 1);
-	if (a2 <= a1 && a2 <= a0) tmp_center[1] = anchor_center[2], anchor_center.erase(anchor_center.begin() + 2);
-	double d0, d2;
-	d0 = abs((anchor_center[0].x - tmp_center[1].x) * (anchor_center[0].x - tmp_center[1].x) + (anchor_center[0].y - tmp_center[1].y) * (anchor_center[0].y - tmp_center[1].y));
-	d2 = abs((anchor_center[1].x - tmp_center[1].x) * (anchor_center[1].x - tmp_center[1].x) + (anchor_center[1].y - tmp_center[1].y) * (anchor_center[1].y - tmp_center[1].y));
-	if (d0 > d2) tmp_center[2] = anchor_center[0], tmp_center[0] = anchor_center[1];
-	else tmp_center[0] = anchor_center[0], tmp_center[2] = anchor_center[1];
-	anchor_center.pop_back();
-	anchor_center.pop_back();
-	anchor_center.push_back(tmp_center[0]);
-	anchor_center.push_back(tmp_center[1]);
-	anchor_center.push_back(tmp_center[2]); */
 }
 
-//找出二维码框进行截取解码
 int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 {
 	if (!srcImg.data)
@@ -510,9 +426,6 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 	vector<vector<Point>> contour2;
 
 	cvtColor(srcImg, srcGray, COLOR_BGR2GRAY);
-	//blur(srcGray, srcGray, Size(5, 5));
-
-	//equalizeHist(srcGray, srcGray);
 
 	threshold(srcGray, srcGray, 188, 255, THRESH_BINARY | THRESH_OTSU);
 
@@ -532,11 +445,10 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 			k = hierarchy[k][2];
 			ic++;
 		}
-		//有两个子轮廓才是二维码的顶点
+
 		if (ic >= 2)
 		{
 			bool isQr = Qr_point(contours[parentIdx], srcGray, parentIdx);
-			//保存找到的四个黑色定位角
 			if (isQr)
 				contour2.push_back(contours[parentIdx]);
 			parentIdx = -1;
@@ -602,13 +514,11 @@ bool Decoder::png_to_bin(Mat frame)
 {
 	Mat image;
 	vector<vector<Point>> QrPoint;
-	char png_name[64];
 	image = frame;
 	
 	if (find_Qr_anchor(image, QrPoint) == -1)
 		return false;
 	return true;
-	//find_Qr_anchor(image, QrPoint);
 }
 
 int Decoder::bin_to_text(char* _output_file_path)
@@ -695,14 +605,12 @@ unsigned int Decoder::CorrectError(unsigned int code) {
 	if (res == 0) {
 		return decode >> 10;
 	}
-	//2.2 correct one bit error
 	for (int i = 0; i < 26; i++) {
 		if (res == CheckMatrix[i][0]) {
 			decode = decode ^ CheckMatrix[i][1];
 			return decode >> 10;
 		}
 	}
-	//2.3 correct two bit error
 	for (int i = 0; i < 26; i++) {
 		for (int j = i + 1; j < 26; j++) {
 			if (res == (CheckMatrix[i][0] ^ CheckMatrix[j][0])) {
@@ -749,7 +657,7 @@ void Decoder::num_or_text(char ch, FILE* output_file)
 	}
 }
 
-char* Decoder::Parameterjudgement(char* _input_file_name, char* _output_file_name)
+void Decoder::Parameterjudgement(char* _input_file_name, char* _output_file_name)
 {
 	if (_input_file_name[strlen(_input_file_name) - 1] == '4' && (_input_file_name[strlen(_input_file_name) - 2] == 'p' || _input_file_name[strlen(_input_file_name) - 2] == 'P') && (_input_file_name[strlen(_input_file_name) - 3] == 'm' || _input_file_name[strlen(_input_file_name) - 3] == 'M') && _input_file_name[strlen(_input_file_name) - 4] == '.')
 	{}

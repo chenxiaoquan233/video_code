@@ -128,12 +128,13 @@
       <SDLCheck>true</SDLCheck>
       <ConformanceMode>true</ConformanceMode>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opencv_world420.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>IlmImf.lib;ittnotify.lib;opencv_dnn420.lib;opencv_photo420.lib;libjpeg-turbo.lib;opencv_flann420.lib;opencv_video420.lib;libpng.lib;opencv_gapi420.lib;opencv_videoio420.lib;libprotobuf.lib;opencv_highgui420.lib;libtiff.lib;opencv_imgcodecs420.lib;ade.lib;libwebp.lib;opencv_imgproc420.lib;quirc.lib;ippicvmt.lib;opencv_calib3d420.lib;opencv_ml420.lib;zlib.lib;ippiw.lib;opencv_core420.lib;opencv_objdetect420.lib;libjasper.lib;opencv_features2d420.lib;opencv_stitching420.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
