@@ -10,7 +10,7 @@ Decoder::~Decoder()
 {
 }
 
-int Decoder::decode(char* _input_video_path, char* _output_text_path)
+int Decoder::decode(char* _input_video_path, char* _output_text_path,char* _check_file_path)
 {
 	Parameterjudgement(_input_video_path, _output_text_path);
 	VideoCapture capture(_input_video_path);
@@ -23,7 +23,7 @@ int Decoder::decode(char* _input_video_path, char* _output_text_path)
 		bin_text = new bool[MAX_BIN_PER_IMAGE];
 		if (!png_to_bin(frame)) { delete bin_text;continue; }
 		else if (!start) { mp4_to_png(capture, fpp, frame);fpp = 3; start = true; }
-		bin_to_text(_output_text_path);
+		bin_to_text(_output_text_path,_check_file_path);
 		delete bin_text;
 	}
 	return 0;
@@ -521,9 +521,10 @@ bool Decoder::png_to_bin(Mat frame)
 	return true;
 }
 
-int Decoder::bin_to_text(char* _output_file_path)
+int Decoder::bin_to_text(char* _output_file_path,char * _check_file_path)
 {
 	FILE* output_file = fopen(_output_file_path, "a");
+	FILE* check_file = fopen(_check_file_path, "a");
 	int char_sum = MAX_BIN_PER_IMAGE / 26 * 2;
 	text = new char[char_sum];
 	unsigned int tmp_code = 0;
@@ -534,7 +535,7 @@ int Decoder::bin_to_text(char* _output_file_path)
 		{
 			tmp_code += bin_text[26 * i + j]<<j;
 		}
-		tmp_code = CorrectError(tmp_code);
+		tmp_code = CorrectError(tmp_code,check_file);
 		text[2 * i] = 0;
 		text[2 * i + 1] = 0;
 		for (int j = 8; j < 16; j++)
@@ -546,6 +547,7 @@ int Decoder::bin_to_text(char* _output_file_path)
 		num_or_text(text[2 * i + 1], output_file);
 	}
 	fclose(output_file);
+	fclose(check_file);
 	return char_sum;
 }
 
@@ -588,11 +590,12 @@ void Decoder::CreateCheckMatrix()
 	}
 }
 
-unsigned int Decoder::CorrectError(unsigned int code) {
+unsigned int Decoder::CorrectError(unsigned int code, FILE* check_file) {
 	unsigned int encode = 0;
 	unsigned int decode = 0;
 	unsigned int gx = 0x05B9 << (26 - 11);
 	unsigned int res;
+	unsigned char check_input[4] = { 0xff,0xff,0x0,0x0 };
 	decode = code;
 	for (int i = 0; i < 16; i++)
 	{
@@ -603,11 +606,13 @@ unsigned int Decoder::CorrectError(unsigned int code) {
 	}
 	res = code >> (26 - 10);
 	if (res == 0) {
+		fwrite(check_input , 1, 2, check_file);
 		return decode >> 10;
 	}
 	for (int i = 0; i < 26; i++) {
 		if (res == CheckMatrix[i][0]) {
 			decode = decode ^ CheckMatrix[i][1];
+			fwrite(check_input , 1, 2, check_file);
 			return decode >> 10;
 		}
 	}
@@ -615,10 +620,12 @@ unsigned int Decoder::CorrectError(unsigned int code) {
 		for (int j = i + 1; j < 26; j++) {
 			if (res == (CheckMatrix[i][0] ^ CheckMatrix[j][0])) {
 				decode = decode ^ CheckMatrix[i][1] ^ CheckMatrix[j][1];
+				fwrite(check_input , 1, 2, check_file);
 				return decode >> 10;
 			}
 		}
 	}
+	fwrite(check_input+2, 1, 2, check_file);
 	return decode >> 10;
 }
 

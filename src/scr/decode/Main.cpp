@@ -5,10 +5,10 @@ using namespace cv;
 int main(int argc, char** argv)
 {
 	Decoder* decoder = new Decoder();
-	if (argc != 3)
+	if (argc != 4)
 	{
-		cout << "Number of parameters should be 3" << endl;
+		cout << "Number of parameters should be 4" << endl;
 		exit(0);
 	}
-	decoder->decode(argv[1],argv[2]);
+	decoder->decode(argv[1],argv[2],argv[3]);
 }
