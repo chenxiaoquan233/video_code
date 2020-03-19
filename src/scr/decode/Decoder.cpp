@@ -49,8 +49,11 @@ bool Decoder::mp4_to_png(VideoCapture& capture, int fpp, Mat& frame)
 int Decoder::recog_Qr(Mat& image1)
 {
 	int count = 0;
-	Mat image = Mat::zeros(720, 1280, CV_8UC3);
+	Mat image = Mat::zeros(IMG_X, IMG_Y, CV_8UC3);
 	resize(image1, image, image.size());
+	imshow("png", image);
+	imwrite("1.png", image);
+	waitKey(0);
 
 	for (int p = 0; p < ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
 	{
@@ -498,10 +501,10 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 		for (int i = 0; i < qr_center.size(); ++i)
 			src_center.push_back(qr_center[i]);
 		vector<Point2f> origin_center;
-		origin_center.push_back(Point2f(cols * 70. / 1280, rows * 650. / 720));
-		origin_center.push_back(Point2f(cols * 70. / 1280, rows * 70. / 720));
-		origin_center.push_back(Point2f(cols * 1210. / 1280, rows * 70. / 720));
-		origin_center.push_back(Point2f(cols * 1210. / 1280, rows * 650. / 720));
+		origin_center.push_back(Point2f(cols * 7. * BASE_BLOCK_WIDTH / IMG_Y, rows * (IMG_X - 7. * BASE_BLOCK_WIDTH) / IMG_X));
+		origin_center.push_back(Point2f(cols * 7. * BASE_BLOCK_WIDTH / IMG_Y, rows * 7. * BASE_BLOCK_WIDTH / IMG_X));
+		origin_center.push_back(Point2f(cols * (IMG_Y - 7. * BASE_BLOCK_WIDTH) / IMG_Y, rows *  7. * BASE_BLOCK_WIDTH / IMG_X));
+		origin_center.push_back(Point2f(cols * (IMG_Y - 7. * BASE_BLOCK_WIDTH) / IMG_Y, rows * (IMG_X - 7. * BASE_BLOCK_WIDTH) / IMG_X));
 		Mat warp_mat = getPerspectiveTransform(src_center, origin_center);
 		warpPerspective(srcGray, output, warp_mat, srcImg.size());
 		recog_Qr(output);
@@ -595,7 +598,7 @@ unsigned int Decoder::CorrectError(unsigned int code, FILE* check_file) {
 	unsigned int decode = 0;
 	unsigned int gx = 0x05B9 << (26 - 11);
 	unsigned int res;
-	unsigned char check_input[4] = { 0xff,0xff,0x0,0x0 };
+	unsigned char check_input[8] = { 0xff, 0xff, 0xAA, 0xaa, 0x88, 0x88, 0x0, 0x0 };
 	decode = code;
 	for (int i = 0; i < 16; i++)
 	{
@@ -612,7 +615,7 @@ unsigned int Decoder::CorrectError(unsigned int code, FILE* check_file) {
 	for (int i = 0; i < 26; i++) {
 		if (res == CheckMatrix[i][0]) {
 			decode = decode ^ CheckMatrix[i][1];
-			fwrite(check_input , 1, 2, check_file);
+			fwrite(check_input+2 , 1, 2, check_file);
 			return decode >> 10;
 		}
 	}
@@ -620,12 +623,12 @@ unsigned int Decoder::CorrectError(unsigned int code, FILE* check_file) {
 		for (int j = i + 1; j < 26; j++) {
 			if (res == (CheckMatrix[i][0] ^ CheckMatrix[j][0])) {
 				decode = decode ^ CheckMatrix[i][1] ^ CheckMatrix[j][1];
-				fwrite(check_input , 1, 2, check_file);
+				fwrite(check_input+4 , 1, 2, check_file);
 				return decode >> 10;
 			}
 		}
 	}
-	fwrite(check_input+2, 1, 2, check_file);
+	fwrite(check_input+6, 1, 2, check_file);
 	return decode >> 10;
 }
 

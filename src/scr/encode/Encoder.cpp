@@ -32,6 +32,9 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 		int len = text_to_bin(_input_file_name);
 		frame=bin_to_png(bin_text, len * 26);		//Í¼Æ¬Éú³É
 		png_sum++;
+		/*imshow("1.png", frame);
+		imwrite("1.png", frame);
+		waitKey(0);*/
 		resize(frame, frame, Size(IMG_Y + 20, IMG_X + 20));
 		for (int frame_i = 0;frame_i < 3;frame_i++)
 			video << frame;
