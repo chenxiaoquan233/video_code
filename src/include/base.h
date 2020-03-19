@@ -10,7 +10,7 @@
 class Code_base
 {
 protected:
-	const int BLOCK_SIZE = 2;//side block number of every single block
+	const int BLOCK_SIZE = 1;//side block number of every single block
 	int BLOCK_WIDTH;
 	const int BASE_BLOCK_WIDTH = 10;
 	const int IMG_X = 720;

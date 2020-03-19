@@ -498,10 +498,10 @@ int Decoder::find_Qr_anchor(Mat& srcImg, vector<vector<Point>>& qrPoint)
 		for (int i = 0; i < qr_center.size(); ++i)
 			src_center.push_back(qr_center[i]);
 		vector<Point2f> origin_center;
-		origin_center.push_back(Point2f(cols * 73. / 1280, rows * 647. / 720));
-		origin_center.push_back(Point2f(cols * 73. / 1280, rows * 73. / 720));
-		origin_center.push_back(Point2f(cols * 1207. / 1280, rows * 73. / 720));
-		origin_center.push_back(Point2f(cols * 1207. / 1280, rows * 647. / 720));
+		origin_center.push_back(Point2f(cols * 70. / 1280, rows * 650. / 720));
+		origin_center.push_back(Point2f(cols * 70. / 1280, rows * 70. / 720));
+		origin_center.push_back(Point2f(cols * 1210. / 1280, rows * 70. / 720));
+		origin_center.push_back(Point2f(cols * 1210. / 1280, rows * 650. / 720));
 		Mat warp_mat = getPerspectiveTransform(src_center, origin_center);
 		warpPerspective(srcGray, output, warp_mat, srcImg.size());
 		recog_Qr(output);
