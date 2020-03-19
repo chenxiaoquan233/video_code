@@ -26,7 +26,7 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 	Mat image_white = pure_white(IMG_Y + 20, IMG_X + 20);
 	video << image_white;
 	int frame_number=1;
-	while (!feof(input_file)&&frame_number<= video_length*30/1000-4)
+	while (!feof(input_file)&&frame_number<= video_length*30/ANCHOR_WIDTH - 3 * BLOCK_SIZE0-4)
 	{
 		Mat frame;
 		int len = text_to_bin(_input_file_name);
@@ -91,25 +91,25 @@ int Encoder::text_to_bin(char* _input_file_name)
 void Encoder::draw_anchors(Mat& image)
 {
 	//定位点一
-	rectangle(image, Point(0 + 10, 0 + 10), Point(160 + 10, 160 + 10), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(0 + 10, 0 + 10), Point(140 + 10, 140 + 10), Scalar(0), FILLED, LINE_8);
-	rectangle(image, Point(20 + 10, 20 + 10), Point(120 + 10, 120 + 10), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(40 + 10, 40 + 10), Point(100 + 10, 100 + 10), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(0 + 10, 0 + 10), Point(ANCHOR_WIDTH + 10, ANCHOR_WIDTH + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(0 + 10, 0 + 10), Point(ANCHOR_WIDTH - BLOCK_SIZE + 10, ANCHOR_WIDTH - BLOCK_SIZE + 10), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(20 + 10, 20 + 10), Point(ANCHOR_WIDTH - 2 * BLOCK_SIZE + 10, ANCHOR_WIDTH - 2 * BLOCK_SIZE + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(40 + 10, 40 + 10), Point(ANCHOR_WIDTH - 3 * BLOCK_SIZE + 10, ANCHOR_WIDTH - 3 * BLOCK_SIZE + 10), Scalar(0), FILLED, LINE_8);
 	//定位点二
-	rectangle(image, Point(0 + 10, 560 + 10), Point(160 + 10, 720 + 10), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(0 + 10, 580 + 10), Point(140 + 10, 720 + 10), Scalar(0), FILLED, LINE_8);
-	rectangle(image, Point(20 + 10, 600 + 10), Point(120 + 10, 700 + 10), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(40 + 10, 620 + 10), Point(100 + 10, 680 + 10), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(0 + 10, IMG_X - ANCHOR_WIDTH + 10), Point(ANCHOR_WIDTH + 10, IMG_X + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(0 + 10, IMG_X - ANCHOR_WIDTH + BLOCK_WIDTH + 10), Point(ANCHOR_WIDTH - BLOCK_SIZE + 10, IMG_X + 10), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(20 + 10, IMG_X - ANCHOR_WIDTH + 2 * BLOCK_WIDTH + 10), Point(ANCHOR_WIDTH - 2 * BLOCK_SIZE + 10, IMG_X - BLOCK_WIDTH + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(40 + 10, IMG_X - ANCHOR_WIDTH + 3 * BLOCK_WIDTH + 10), Point(ANCHOR_WIDTH - 3 * BLOCK_SIZE + 10, IMG_X - 2 * BLOCK_WIDTH + 10), Scalar(0), FILLED, LINE_8);
 	//定位点三
-	rectangle(image, Point(1120 + 10, 0 + 10), Point(1280 + 10, 160 + 10), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(1140 + 10, 0 + 10), Point(1280 + 10, 140 + 10), Scalar(0), FILLED, LINE_8);
-	rectangle(image, Point(1160 + 10, 20 + 10), Point(1260 + 10, 120 + 10), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(1180 + 10, 40 + 10), Point(1240 + 10, 100 + 10), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(IMG_Y - ANCHOR_WIDTH + 10, 0 + 10), Point(IMG_Y + 10, ANCHOR_WIDTH + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(IMG_Y - ANCHOR_WIDTH + BLOCK_WIDTH + 10, 0 + 10), Point(IMG_Y + 10, ANCHOR_WIDTH - BLOCK_SIZE + 10), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(IMG_Y - ANCHOR_WIDTH + 2 * BLOCK_WIDTH + 10, 20 + 10), Point(IMG_Y - BLOCK_WIDTH + 10, ANCHOR_WIDTH - 2 * BLOCK_SIZE + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(IMG_Y - ANCHOR_WIDTH + 3 * BLOCK_WIDTH + 10, 40 + 10), Point(IMG_Y - 2 * BLOCK_WIDTH + 10, ANCHOR_WIDTH - 3 * BLOCK_SIZE + 10), Scalar(0), FILLED, LINE_8);
 	//定位点四
-	rectangle(image, Point(1120 + 10, 560 + 10), Point(1280 + 10, 720 + 10), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(1140 + 10, 580 + 10), Point(1280 + 10, 720 + 10), Scalar(0), FILLED, LINE_8);
-	rectangle(image, Point(1160 + 10, 600 + 10), Point(1260 + 10, 700 + 10), Scalar(255), FILLED, LINE_8);
-	rectangle(image, Point(1180 + 10, 620 + 10), Point(1240 + 10, 680 + 10), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(IMG_Y - ANCHOR_WIDTH + 10, IMG_X - ANCHOR_WIDTH + 10), Point(IMG_Y + 10, IMG_X + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(IMG_Y - ANCHOR_WIDTH + BLOCK_WIDTH + 10, IMG_X - ANCHOR_WIDTH + BLOCK_WIDTH + 10), Point(IMG_Y + 10, IMG_X + 10), Scalar(0), FILLED, LINE_8);
+	rectangle(image, Point(IMG_Y - ANCHOR_WIDTH + 2 * BLOCK_WIDTH + 10, IMG_X - ANCHOR_WIDTH + 2 * BLOCK_WIDTH + 10), Point(IMG_Y - BLOCK_WIDTH + 10, IMG_X - BLOCK_WIDTH + 10), Scalar(255), FILLED, LINE_8);
+	rectangle(image, Point(IMG_Y - ANCHOR_WIDTH + 3 * BLOCK_WIDTH + 10, IMG_X - ANCHOR_WIDTH + 3 * BLOCK_WIDTH + 10), Point(IMG_Y - 2 * BLOCK_WIDTH + 10, IMG_X - 2 * BLOCK_WIDTH + 10), Scalar(0), FILLED, LINE_8);
 }
 
 Mat Encoder::bin_to_png(bool* str, int size)
@@ -158,7 +158,6 @@ Mat Encoder::bin_to_png(bool* str, int size)
 	return image;
 }
 
-
 unsigned int Encoder::getFEC(unsigned int CX)
 {
 	unsigned int RX;
@@ -205,12 +204,12 @@ void Encoder::Parametercheck(char* _input_file_name, char* _output_file_name, ch
 	}
 	else
 	{
-		std::cout << "input_file_name is ok" << std::endl;
+		//std::cout << "input_file_name is ok" << std::endl;
 		fclose(fp);
 	}
 	if (_output_file_name[strlen(_output_file_name) - 4] == '.' && (_output_file_name[strlen(_output_file_name) - 3] == 'm' || _output_file_name[strlen(_output_file_name) - 3] == 'M') && (_output_file_name[strlen(_output_file_name) - 2] == 'p' || _output_file_name[strlen(_output_file_name) - 3] == 'P') && _output_file_name[strlen(_output_file_name) - 1] == '4')
 	{
-		std::cout << "output_file_name is ok" << std::endl;
+		//std::cout << "output_file_name is ok" << std::endl;
 	}
 	else
 	{
@@ -225,7 +224,7 @@ void Encoder::Parametercheck(char* _input_file_name, char* _output_file_name, ch
 	}
 	if (num > 180)
 	{
-		std::cout << "video_length is ok" << std::endl;
+		//std::cout << "video_length is ok" << std::endl;
 	}
 	else
 	{
