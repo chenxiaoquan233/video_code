@@ -26,6 +26,7 @@ int Decoder::decode(char* _input_video_path, char* _output_text_path,char* _chec
 		bin_to_text(_output_text_path,_check_file_path);
 		delete bin_text;
 	}
+	printf("%d,%d,%d,%d\n", tot00, tot88, totaa, tot);
 	return 0;
 }
 
@@ -51,9 +52,9 @@ int Decoder::recog_Qr(Mat& image1)
 	int count = 0;
 	Mat image = Mat::zeros(IMG_X, IMG_Y, CV_8UC3);
 	resize(image1, image, image.size());
-	imshow("png", image);
+	/*imshow("png", image);
 	imwrite("1.png", image);
-	waitKey(0);
+	waitKey(0);*/
 
 	for (int p = 0; p < ANCHOR_BASE_BLOCKS / BLOCK_SIZE; p++)
 	{
@@ -609,13 +610,14 @@ unsigned int Decoder::CorrectError(unsigned int code, FILE* check_file) {
 	}
 	res = code >> (26 - 10);
 	if (res == 0) {
-		fwrite(check_input , 1, 2, check_file);
+		fwrite(check_input, 1, 2, check_file); tot++;
 		return decode >> 10;
 	}
 	for (int i = 0; i < 26; i++) {
 		if (res == CheckMatrix[i][0]) {
 			decode = decode ^ CheckMatrix[i][1];
-			fwrite(check_input+2 , 1, 2, check_file);
+			fwrite(check_input + 2, 1, 2, check_file); tot++;
+			totaa++;
 			return decode >> 10;
 		}
 	}
@@ -623,12 +625,14 @@ unsigned int Decoder::CorrectError(unsigned int code, FILE* check_file) {
 		for (int j = i + 1; j < 26; j++) {
 			if (res == (CheckMatrix[i][0] ^ CheckMatrix[j][0])) {
 				decode = decode ^ CheckMatrix[i][1] ^ CheckMatrix[j][1];
-				fwrite(check_input+4 , 1, 2, check_file);
+				fwrite(check_input + 4, 1, 2, check_file); tot++;
+				tot88++;
 				return decode >> 10;
 			}
 		}
 	}
 	fwrite(check_input+6, 1, 2, check_file);
+	tot00++;
 	return decode >> 10;
 }
 
