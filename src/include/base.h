@@ -13,8 +13,8 @@ protected:
 	const int BLOCK_SIZE = 1;//side block number of every single block
 	int BLOCK_WIDTH;
 	const int BASE_BLOCK_WIDTH = 10;
-	const int IMG_X = 1080;
-	const int IMG_Y = 1920;
+	const int IMG_X = 880;
+	const int IMG_Y = 1580;
 	int ANCHOR_AREA; //blocks coverd by anchor
 	int MAX_BIN_PER_IMAGE;
 	const int ANCHOR_BASE_BLOCKS = 16;

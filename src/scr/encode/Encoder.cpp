@@ -26,7 +26,7 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 	Mat image_white = pure_white(IMG_Y + 20, IMG_X + 20);
 	video << image_white;
 	int frame_number=1;
-	while (!feof(input_file)&&frame_number<= video_length*30/ANCHOR_WIDTH - 3 * BLOCK_SIZE - 4)
+	while (!feof(input_file)&&frame_number<= video_length*30/1000-3)
 	{
 		Mat frame;
 		int len = text_to_bin(_input_file_name);
