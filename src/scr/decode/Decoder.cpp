@@ -531,6 +531,9 @@ int Decoder::bin_to_text(char* _output_file_path,char * _check_file_path)
 	int char_sum = MAX_BIN_PER_IMAGE / 26 * 2;
 	text = new char[char_sum];
 	unsigned int tmp_code = 0;
+
+	//static int debug_flag = -10;
+
 	for (int i = 0; i < char_sum / 2; ++i)
 	{
 		tmp_code = 0;
@@ -539,6 +542,10 @@ int Decoder::bin_to_text(char* _output_file_path,char * _check_file_path)
 			tmp_code += bin_text[26 * i + j]<<j;
 		}
 		tmp_code = CorrectError(tmp_code,check_file);
+		/*if (debug_flag < 0) {
+			std::cout << tmp_code << std::endl;;
+			debug_flag ++;
+		}*/
 		text[2 * i] = 0;
 		text[2 * i + 1] = 0;
 		for (int j = 8; j < 16; j++)
@@ -643,7 +650,11 @@ bool Decoder::check_text_state()
 }
 
 void Decoder::num_or_text(char ch, FILE* output_file)
-{
+{   /*
+	static int debugflag = -100;
+	if (debugflag < 0) {
+		printf("%02x ", (unsigned char)ch);
+	}*/
 	if (!check_text_state())
 	{
 		if (ch != '@')

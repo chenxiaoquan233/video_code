@@ -68,6 +68,9 @@ int Encoder::text_to_bin(char* _input_file_name)
 		}
 		text_tmp = len_text;				//将“长度@”添加到正文前面
 		isfirstpng = false;
+		/*for (int iii = 0; iii < bit_message_len / 8; iii++) {
+			printf("%02X ", (unsigned char)text_tmp[iii]);
+		}*/
 	}
 	else
 	{
@@ -75,11 +78,19 @@ int Encoder::text_to_bin(char* _input_file_name)
 	}
 	
 	hex = new unsigned int[res / 2];
+
+	//static int debug_flag = -10;
+
 	for (int i = 0; i < res; ++i)
 	{
 		if (i % 2)
 		{
-			hex[i / 2] += text_tmp[i];
+			hex[i / 2] += (unsigned char)text_tmp[i];
+			
+			/*if (debug_flag< 0) {
+				std::cout << hex[i / 2] << std::endl;;
+				debug_flag ++;
+			}*/
 			unsigned int FEC = getFEC(hex[i / 2]);
 			hex[i / 2] <<= 10;
 			hex[i / 2] += FEC;
@@ -88,7 +99,7 @@ int Encoder::text_to_bin(char* _input_file_name)
 		}
 		else
 		{
-			hex[i / 2] = text_tmp[i];
+			hex[i / 2] = (unsigned char)text_tmp[i];
 			hex[i / 2] <<= 8;
 		}
 	}
