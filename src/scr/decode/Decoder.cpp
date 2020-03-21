@@ -526,8 +526,8 @@ bool Decoder::png_to_bin(Mat frame)
 
 int Decoder::bin_to_text(char* _output_file_path,char * _check_file_path)
 {
-	FILE* output_file = fopen(_output_file_path, "a");
-	FILE* check_file = fopen(_check_file_path, "a");
+	FILE* output_file = fopen(_output_file_path, "ab");
+	FILE* check_file = fopen(_check_file_path, "ab");
 	int char_sum = MAX_BIN_PER_IMAGE / 26 * 2;
 	text = new char[char_sum];
 	unsigned int tmp_code = 0;

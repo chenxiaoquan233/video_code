@@ -21,7 +21,7 @@ int Encoder::encode(char* _input_file_name, char* _output_file_name, char* _vide
 {
 	Parametercheck(_input_file_name, _output_file_name, _video_length);
 	set_video_length(_video_length);
-	input_file = fopen(_input_file_name, "r");
+	input_file = fopen(_input_file_name, "rb");
 	VideoWriter video(_output_file_name, 0x00000021, fps, Size(IMG_Y + 20, IMG_X + 20));
 	Mat image_white = pure_white(IMG_Y + 20, IMG_X + 20);
 	video << image_white;
@@ -62,7 +62,11 @@ int Encoder::text_to_bin(char* _input_file_name)
 		sprintf(len_text, "%d%c", len_of_text, start);		//将“长度@”加入数组
 		res = fread(text_tmp, 1, hex_len * 2 - strlen(len_text), input_file);
 		res += strlen(len_text);
-		text_tmp = strcat(len_text, text_tmp);				//将“长度@”添加到正文前面
+		int len_tmp = strlen(len_text);
+		for (int ii = strlen(len_text); ii < bit_message_len / 8; ii++) {
+			len_text[ii] = text_tmp[ii - len_tmp];
+		}
+		text_tmp = len_text;				//将“长度@”添加到正文前面
 		isfirstpng = false;
 	}
 	else
