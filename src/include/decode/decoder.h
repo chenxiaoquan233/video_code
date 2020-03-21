@@ -15,10 +15,6 @@ private:
 	unsigned int CheckMatrix[26][2];
 	bool is_text;
 	int real_text_len;
-	int tot00 = 0;
-	int totaa = 0;
-	int tot88 = 0;
-	int tot = 0;
 public:
 	Decoder();
 	~Decoder();

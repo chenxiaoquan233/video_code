@@ -26,7 +26,6 @@ int Decoder::decode(char* _input_video_path, char* _output_text_path,char* _chec
 		bin_to_text(_output_text_path,_check_file_path);
 		delete bin_text;
 	}
-	printf("%d,%d,%d,%d\n", tot00, tot88, totaa, tot);
 	return 0;
 }
 
@@ -599,7 +598,7 @@ unsigned int Decoder::CorrectError(unsigned int code, FILE* check_file) {
 	unsigned int decode = 0;
 	unsigned int gx = 0x05B9 << (26 - 11);
 	unsigned int res;
-	unsigned char check_input[8] = { 0xff, 0xff, 0xAA, 0xaa, 0x88, 0x88, 0x0, 0x0 };
+	unsigned char check_input[4] = { 0xff, 0xff, 0x0, 0x0 };
 	decode = code;
 	for (int i = 0; i < 16; i++)
 	{
@@ -610,14 +609,13 @@ unsigned int Decoder::CorrectError(unsigned int code, FILE* check_file) {
 	}
 	res = code >> (26 - 10);
 	if (res == 0) {
-		fwrite(check_input, 1, 2, check_file); tot++;
+		fwrite(check_input, 1, 2, check_file); 
 		return decode >> 10;
 	}
 	for (int i = 0; i < 26; i++) {
 		if (res == CheckMatrix[i][0]) {
 			decode = decode ^ CheckMatrix[i][1];
-			fwrite(check_input + 2, 1, 2, check_file); tot++;
-			totaa++;
+			fwrite(check_input , 1, 2, check_file); 
 			return decode >> 10;
 		}
 	}
@@ -625,14 +623,12 @@ unsigned int Decoder::CorrectError(unsigned int code, FILE* check_file) {
 		for (int j = i + 1; j < 26; j++) {
 			if (res == (CheckMatrix[i][0] ^ CheckMatrix[j][0])) {
 				decode = decode ^ CheckMatrix[i][1] ^ CheckMatrix[j][1];
-				fwrite(check_input + 4, 1, 2, check_file); tot++;
-				tot88++;
+				fwrite(check_input , 1, 2, check_file); 
 				return decode >> 10;
 			}
 		}
 	}
-	fwrite(check_input+6, 1, 2, check_file);
-	tot00++;
+	fwrite(check_input+2, 1, 2, check_file);
 	return decode >> 10;
 }
 
