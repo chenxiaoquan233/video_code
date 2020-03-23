@@ -8,22 +8,15 @@
 作者： [chenxiaoquan233](https://github.com/chenxiaoquan233),[fester](https://github.com/ferster),[jrsmith12138](https://github.com/jrsmith12138),
 [firstday1](https://github.com/firstday1)
 
-## 注意
-
-此项目仍在开发中，未发布release版本
 
 <!-- TOC -->
 ## 目录
 
 - [Video Code](#video-code)
-- [注意](#注意)
 - [简介](#简介)
 - [编译环境](#编译环境)
 - [运行环境](#运行环境)
 - [使用教程](#使用教程)
-  * [编码部分](#编码部分)
-  * [解码部分](#解码部分)
-- [Todo](#todo)
   * [编码部分](#编码部分)
   * [解码部分](#解码部分)
 - [Change log](#change-log)
@@ -39,20 +32,16 @@ OpenCV 4.2.0
 ## 运行环境
 Windows10 64位
 ## 使用教程
-
 ### 编码部分
 ```
 encode 输入文件 输出文件 视频时长（单位：毫秒）
 ```
+
 ### 解码部分
 ```
-decode 输入文件 输出文件
+decode 输入文件 输出文件 校验文件
 ```
-## Todo
-### 编码部分
-暂无
-### 解码部分
-暂无
+
 ## Change log
 
 ## 交流反馈
